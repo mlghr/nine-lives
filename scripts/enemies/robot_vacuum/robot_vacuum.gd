@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+signal disabled(reason: StringName)
+
 enum RobotVacuumState {
 	PATROL,
 	CHASE,
@@ -16,6 +18,7 @@ enum RobotVacuumState {
 @export_node_path("HitboxArea") var bump_hitbox_path: NodePath = ^"CombatRoot/BumpHitbox"
 @export_node_path("HealthComponent") var health_component_path: NodePath = ^"HealthComponent"
 @export_node_path("Node3D") var route_root_path: NodePath = ^"PatrolRoute"
+@export_node_path("Area3D") var encounter_bounds_path: NodePath = NodePath("")
 @export_node_path("Area3D") var stair_fall_detector_path: NodePath = ^"WeaknessRoot/StairFallDetector"
 @export_node_path("AnimationPlayer") var animation_player_path: NodePath = ^"AnimationPlayer"
 
@@ -25,6 +28,7 @@ enum RobotVacuumState {
 @onready var bump_hitbox: HitboxArea = get_node_or_null(bump_hitbox_path)
 @onready var health_component: HealthComponent = get_node_or_null(health_component_path)
 @onready var route_root: Node3D = get_node_or_null(route_root_path)
+@onready var encounter_bounds: Area3D = get_node_or_null(encounter_bounds_path)
 @onready var stair_fall_detector: Area3D = get_node_or_null(stair_fall_detector_path)
 @onready var animation_player: AnimationPlayer = get_node_or_null(animation_player_path)
 
@@ -36,6 +40,8 @@ var _route_index: int = 0
 var _state_timer: float = 0.0
 var _erratic_timer: float = 0.0
 var _erratic_direction: Vector3 = Vector3.FORWARD
+var _home_transform: Transform3D
+var _disabled_emitted: bool = false
 
 
 func _ready() -> void:
@@ -43,6 +49,7 @@ func _ready() -> void:
 		push_error("RobotVacuum requires a RobotVacuumStats resource.")
 		return
 
+	_home_transform = global_transform
 	_collect_route_points()
 	_apply_stats_to_nodes()
 	_connect_signals()
@@ -84,7 +91,7 @@ func on_hurtbox_hit(hit_data: Dictionary) -> bool:
 
 func on_stair_fall_triggered() -> void:
 	if stats.stair_fall_instant_defeat:
-		_enter_defeated()
+		_enter_defeated(&"stair_fall")
 
 
 func _collect_route_points() -> void:
@@ -122,6 +129,9 @@ func _connect_signals() -> void:
 	if stair_fall_detector != null:
 		stair_fall_detector.area_entered.connect(_on_stair_area_entered)
 		stair_fall_detector.body_entered.connect(_on_stair_body_entered)
+
+	if encounter_bounds != null:
+		encounter_bounds.body_exited.connect(_on_encounter_bounds_body_exited)
 
 
 func _patrol(delta: float) -> void:
@@ -178,7 +188,7 @@ func _tick_timer(delta: float, next_state: RobotVacuumState) -> void:
 		return
 
 	if state == RobotVacuumState.FLIPPED:
-		_enter_defeated()
+		_enter_defeated(&"flipped")
 	else:
 		if bump_hitbox != null:
 			bump_hitbox.enabled = false
@@ -212,7 +222,7 @@ func _enter_flipped() -> void:
 		animation_player.play(&"flipped")
 
 
-func _enter_defeated() -> void:
+func _enter_defeated(reason: StringName = &"defeated") -> void:
 	if bump_hitbox != null:
 		bump_hitbox.enabled = false
 
@@ -220,6 +230,26 @@ func _enter_defeated() -> void:
 	state = RobotVacuumState.DEFEATED
 	if animation_player != null and animation_player.has_animation(&"defeated"):
 		animation_player.play(&"defeated")
+
+	if not _disabled_emitted:
+		_disabled_emitted = true
+		disabled.emit(reason)
+
+
+func _reset_to_leash_home() -> void:
+	if state in [RobotVacuumState.FLIPPED, RobotVacuumState.DEFEATED]:
+		return
+
+	if bump_hitbox != null:
+		bump_hitbox.enabled = false
+
+	_target = null
+	velocity = Vector3.ZERO
+	global_transform = _home_transform
+	state = RobotVacuumState.PATROL
+	_route_index = 0
+	_pick_erratic_direction()
+	_set_next_route_target()
 
 
 func _on_stagger_started(duration: float) -> void:
@@ -289,6 +319,11 @@ func _on_stair_area_entered(area: Area3D) -> void:
 func _on_stair_body_entered(body: Node3D) -> void:
 	if body.is_in_group("stair_fall") or body.name.to_lower().contains("stair"):
 		on_stair_fall_triggered()
+
+
+func _on_encounter_bounds_body_exited(body: Node3D) -> void:
+	if body == _target and _is_player_candidate(body):
+		_reset_to_leash_home()
 
 
 func _is_player_candidate(body: Node) -> bool:
