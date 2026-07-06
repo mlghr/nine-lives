@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3]
+[gd_scene load_steps=37 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="2_camera"]
@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" path="res://scenes/effects/catnip_rage_active_effect.tscn" id="17_catnip_active_effect"]
 [ext_resource type="PackedScene" path="res://scenes/effects/catnip_rage_expire_effect.tscn" id="18_catnip_expire_effect"]
 [ext_resource type="Material" path="res://resources/materials/player_proxy.tres" id="19_player_material"]
+[ext_resource type="PackedScene" path="res://scenes/player/cat_model.tscn" id="20_cat_model"]
 
 [sub_resource type="CapsuleShape3D" id="1_body_collision"]
 radius = 0.13
@@ -275,6 +276,7 @@ stats = ExtResource("3_stats")
 model_root_path = NodePath("ModelRoot")
 camera_rig_path = NodePath("CameraRig")
 animation_player_path = NodePath("AnimationPlayer")
+visual_animation_player_path = NodePath("ModelRoot/CatModel/AnimationPlayer")
 health_component_path = NodePath("HealthComponent")
 claw_left_hitbox_path = NodePath("CombatRoot/ClawHitbox_L")
 claw_right_hitbox_path = NodePath("CombatRoot/ClawHitbox_R")
@@ -294,31 +296,40 @@ shape = SubResource("1_body_collision")
 
 [node name="ModelRoot" type="Node3D" parent="."]
 
+[node name="CatModel" parent="ModelRoot" instance=ExtResource("20_cat_model")]
+
 [node name="BodyProxy" type="MeshInstance3D" parent="ModelRoot"]
+visible = false
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.22, 0)
 mesh = SubResource("5_body_mesh")
 
 [node name="HeadProxy" type="MeshInstance3D" parent="ModelRoot"]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, -0.255)
 mesh = SubResource("6_head_mesh")
 
 [node name="TailProxy" type="MeshInstance3D" parent="ModelRoot"]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 0.819152, -0.573576, 0, 0.573576, 0.819152, 0, 0.24, 0.27)
 mesh = SubResource("7_tail_mesh")
 
 [node name="PawProxy_FL" type="MeshInstance3D" parent="ModelRoot"]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.075, 0.04, -0.13)
 mesh = SubResource("8_paw_mesh")
 
 [node name="PawProxy_FR" type="MeshInstance3D" parent="ModelRoot"]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.075, 0.04, -0.13)
 mesh = SubResource("8_paw_mesh")
 
 [node name="PawProxy_BL" type="MeshInstance3D" parent="ModelRoot"]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.075, 0.04, 0.13)
 mesh = SubResource("8_paw_mesh")
 
 [node name="PawProxy_BR" type="MeshInstance3D" parent="ModelRoot"]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.075, 0.04, 0.13)
 mesh = SubResource("8_paw_mesh")
 
