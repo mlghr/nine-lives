@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="RobotVacuumStats" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/robot_vacuum/robot_vacuum_stats.gd" id="1_robot_stats"]
+
+[resource]
+script = ExtResource("1_robot_stats")
+max_lives = 3
+small_hit_stagger_threshold = 1.0
+stagger_buffer_limit = 1.4
+stagger_buffer_recovery = 0.9
+default_invulnerable_time = 0.2
+defeat_stagger_time = 0.8
+patrol_speed = 1.8
+chase_speed = 2.8
+turn_rate = 12.0
+waypoint_arrival_distance = 0.2
+detection_radius = 2.8
+charge_commit_distance = 0.9
+charge_damage = 1
+charge_stagger = 0.45
+charge_knockback_force = 1.8
+charge_speed = 3.4
+charge_windup = 0.15
+charge_recovery = 0.45
+erratic_turn_interval_min = 0.35
+erratic_turn_interval_max = 0.9
+bump_damage = 1
+bump_stagger = 0.45
+bump_knockback_force = 1.8
+pounce_flip_height_margin = 0.15
+helpless_duration = 3.0
+stair_fall_instant_defeat = true
