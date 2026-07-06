@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="EnemyStats" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_stats.gd" id="1_enemy_stats"]
+
+[resource]
+script = ExtResource("1_enemy_stats")
+max_lives = 4
+small_hit_stagger_threshold = 1.0
+stagger_buffer_limit = 1.6
+stagger_buffer_recovery = 0.8
+default_invulnerable_time = 0.25
+defeat_stagger_time = 1.0
+patrol_speed = 1.1
+chase_speed = 1.9
+turn_rate = 7.5
+waypoint_arrival_distance = 0.25
+detection_radius = 3.2
+charge_commit_distance = 1.7
+charge_damage = 1
+charge_stagger = 0.85
+charge_knockback_force = 3.0
+charge_speed = 4.8
+charge_windup = 0.45
+charge_recovery = 0.7
+cord_unplug_stagger_duration = 2.0
+cord_unplug_shutdown = true
+water_instant_defeat = true

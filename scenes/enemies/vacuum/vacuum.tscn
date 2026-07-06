@@ -1,0 +1,256 @@
+[gd_scene load_steps=28 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/vacuum/vacuum.gd" id="1_vacuum"]
+[ext_resource type="Resource" path="res://resources/enemy_stats/vacuum_stats.tres" id="2_stats"]
+[ext_resource type="Script" path="res://scripts/components/hitbox_area.gd" id="3_hitbox"]
+[ext_resource type="Script" path="res://scripts/components/hurtbox_area.gd" id="4_hurtbox"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="5_health"]
+[ext_resource type="Script" path="res://scripts/enemies/vacuum/power_cord.gd" id="6_power_cord"]
+
+[sub_resource type="BoxShape3D" id="1_body_collision"]
+size = Vector3(0.45, 0.95, 0.35)
+
+[sub_resource type="SphereShape3D" id="2_detection_shape"]
+radius = 3.2
+
+[sub_resource type="SphereShape3D" id="3_charge_commit_shape"]
+radius = 1.7
+
+[sub_resource type="BoxShape3D" id="4_charge_hitbox_shape"]
+size = Vector3(0.58, 0.5, 0.36)
+
+[sub_resource type="BoxShape3D" id="5_hurtbox_shape"]
+size = Vector3(0.5, 1.0, 0.42)
+
+[sub_resource type="BoxShape3D" id="6_cord_hurtbox_shape"]
+size = Vector3(0.12, 0.1, 0.52)
+
+[sub_resource type="SphereShape3D" id="7_water_shape"]
+radius = 0.45
+
+[sub_resource type="StandardMaterial3D" id="8_body_material"]
+albedo_color = Color(0.22, 0.26, 0.33, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="9_handle_material"]
+albedo_color = Color(0.08, 0.09, 0.11, 1)
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="10_warning_material"]
+albedo_color = Color(0.9, 0.18, 0.12, 1)
+roughness = 0.65
+
+[sub_resource type="BoxMesh" id="11_body_mesh"]
+size = Vector3(0.42, 0.85, 0.32)
+material = SubResource("8_body_material")
+
+[sub_resource type="BoxMesh" id="12_handle_mesh"]
+size = Vector3(0.08, 0.9, 0.08)
+material = SubResource("9_handle_material")
+
+[sub_resource type="BoxMesh" id="13_head_mesh"]
+size = Vector3(0.55, 0.16, 0.38)
+material = SubResource("10_warning_material")
+
+[sub_resource type="BoxMesh" id="14_wheel_mesh"]
+size = Vector3(0.1, 0.18, 0.08)
+material = SubResource("9_handle_material")
+
+[sub_resource type="BoxMesh" id="15_cord_mesh"]
+size = Vector3(0.04, 0.04, 0.7)
+material = SubResource("9_handle_material")
+
+[sub_resource type="BoxMesh" id="16_outlet_mesh"]
+size = Vector3(0.18, 0.14, 0.04)
+material = SubResource("8_body_material")
+
+[sub_resource type="Animation" id="17_charge_windup_anim"]
+resource_name = "charge_windup"
+length = 0.45
+
+[sub_resource type="Animation" id="18_charge_attack_anim"]
+resource_name = "charge_attack"
+length = 0.35
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CombatRoot/ChargeHitbox:enabled")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.02, 0.32),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+
+[sub_resource type="Animation" id="19_stagger_anim"]
+resource_name = "stagger"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CombatRoot/ChargeHitbox:enabled")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="20_shutdown_anim"]
+resource_name = "shutdown"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CombatRoot/ChargeHitbox:enabled")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ModelRoot:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0.12, 0, 0.2)]
+}
+
+[sub_resource type="AnimationLibrary" id="21_vacuum_animations"]
+_data = {
+&"charge_attack": SubResource("18_charge_attack_anim"),
+&"charge_windup": SubResource("17_charge_windup_anim"),
+&"shutdown": SubResource("20_shutdown_anim"),
+&"stagger": SubResource("19_stagger_anim")
+}
+
+[node name="Vacuum" type="CharacterBody3D"]
+script = ExtResource("1_vacuum")
+stats = ExtResource("2_stats")
+
+[node name="BodyCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 0)
+shape = SubResource("1_body_collision")
+
+[node name="ModelRoot" type="Node3D" parent="."]
+
+[node name="BodyProxy" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, 0)
+mesh = SubResource("11_body_mesh")
+
+[node name="HandleProxy" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(0.906308, 0, -0.422618, 0, 1, 0, 0.422618, 0, 0.906308, 0, 1.04, 0.16)
+mesh = SubResource("12_handle_mesh")
+
+[node name="HeadProxy" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, -0.2)
+mesh = SubResource("13_head_mesh")
+
+[node name="WheelProxy_L" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.28, 0.16, 0.05)
+mesh = SubResource("14_wheel_mesh")
+
+[node name="WheelProxy_R" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28, 0.16, 0.05)
+mesh = SubResource("14_wheel_mesh")
+
+[node name="NavigationAgent" type="NavigationAgent3D" parent="."]
+path_desired_distance = 0.2
+target_desired_distance = 0.25
+
+[node name="Sensors" type="Node3D" parent="."]
+
+[node name="PlayerDetectionArea" type="Area3D" parent="Sensors"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Sensors/PlayerDetectionArea"]
+shape = SubResource("2_detection_shape")
+
+[node name="ChargeCommitArea" type="Area3D" parent="Sensors"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Sensors/ChargeCommitArea"]
+shape = SubResource("3_charge_commit_shape")
+
+[node name="CombatRoot" type="Node3D" parent="."]
+
+[node name="ChargeHitbox" type="Area3D" parent="CombatRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, -0.34)
+monitoring = false
+script = ExtResource("3_hitbox")
+source_path = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/ChargeHitbox"]
+shape = SubResource("4_charge_hitbox_shape")
+
+[node name="Hurtbox" type="Area3D" parent="CombatRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 0)
+script = ExtResource("4_hurtbox")
+target_path = NodePath("../..")
+health_component_path = NodePath("../../HealthComponent")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/Hurtbox"]
+shape = SubResource("5_hurtbox_shape")
+
+[node name="WeaknessRoot" type="Node3D" parent="."]
+
+[node name="PowerCord" type="Node3D" parent="WeaknessRoot"]
+script = ExtResource("6_power_cord")
+
+[node name="CordMesh" type="MeshInstance3D" parent="WeaknessRoot/PowerCord"]
+transform = Transform3D(1, 0, 0, 0, 0.984808, -0.173648, 0, 0.173648, 0.984808, 0, 0.08, 0.48)
+mesh = SubResource("15_cord_mesh")
+
+[node name="CordHurtbox" type="Area3D" parent="WeaknessRoot/PowerCord"]
+transform = Transform3D(1, 0, 0, 0, 0.984808, -0.173648, 0, 0.173648, 0.984808, 0, 0.08, 0.48)
+script = ExtResource("4_hurtbox")
+target_path = NodePath("..")
+health_component_path = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WeaknessRoot/PowerCord/CordHurtbox"]
+shape = SubResource("6_cord_hurtbox_shape")
+
+[node name="OutletSocket" type="Marker3D" parent="WeaknessRoot/PowerCord"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0.86)
+
+[node name="OutletProxy" type="MeshInstance3D" parent="WeaknessRoot/PowerCord/OutletSocket"]
+mesh = SubResource("16_outlet_mesh")
+
+[node name="WaterShortCircuitArea" type="Area3D" parent="WeaknessRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.14, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WeaknessRoot/WaterShortCircuitArea"]
+shape = SubResource("7_water_shape")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("5_health")
+stats = ExtResource("2_stats")
+
+[node name="AudioCuePoints" type="Node3D" parent="."]
+
+[node name="MotorLoopPoint" type="Marker3D" parent="AudioCuePoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+
+[node name="ChargeCuePoint" type="Marker3D" parent="AudioCuePoints"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, -0.35)
+
+[node name="PatrolRoute" type="Node3D" parent="."]
+
+[node name="PatrolPoint_A" type="Marker3D" parent="PatrolRoute"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 0, 0)
+
+[node name="PatrolPoint_B" type="Marker3D" parent="PatrolRoute"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 0, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("21_vacuum_animations")
