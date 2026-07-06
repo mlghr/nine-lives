@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+signal disabled(reason: StringName)
+
 enum VacuumState {
 	PATROL,
 	CHASE,
@@ -18,6 +20,7 @@ enum VacuumState {
 @export_node_path("HitboxArea") var charge_hitbox_path: NodePath = ^"CombatRoot/ChargeHitbox"
 @export_node_path("HealthComponent") var health_component_path: NodePath = ^"HealthComponent"
 @export_node_path("Node3D") var patrol_route_path: NodePath = ^"PatrolRoute"
+@export_node_path("Area3D") var encounter_bounds_path: NodePath = NodePath("")
 @export_node_path("Node3D") var power_cord_path: NodePath = ^"WeaknessRoot/PowerCord"
 @export_node_path("Area3D") var water_short_circuit_area_path: NodePath = ^"WeaknessRoot/WaterShortCircuitArea"
 @export_node_path("AnimationPlayer") var animation_player_path: NodePath = ^"AnimationPlayer"
@@ -29,6 +32,7 @@ enum VacuumState {
 @onready var charge_hitbox: HitboxArea = get_node_or_null(charge_hitbox_path)
 @onready var health_component: HealthComponent = get_node_or_null(health_component_path)
 @onready var patrol_route: Node3D = get_node_or_null(patrol_route_path)
+@onready var encounter_bounds: Area3D = get_node_or_null(encounter_bounds_path)
 @onready var power_cord: Node = get_node_or_null(power_cord_path)
 @onready var water_short_circuit_area: Area3D = get_node_or_null(water_short_circuit_area_path)
 @onready var animation_player: AnimationPlayer = get_node_or_null(animation_player_path)
@@ -40,6 +44,8 @@ var _patrol_points: Array[Marker3D] = []
 var _patrol_index: int = 0
 var _state_timer: float = 0.0
 var _charge_direction: Vector3 = Vector3.ZERO
+var _home_transform: Transform3D
+var _disabled_emitted: bool = false
 
 
 func _ready() -> void:
@@ -47,6 +53,7 @@ func _ready() -> void:
 		push_error("Vacuum requires an EnemyStats resource.")
 		return
 
+	_home_transform = global_transform
 	_collect_patrol_points()
 	_apply_stats_to_nodes()
 	_connect_signals()
@@ -85,14 +92,14 @@ func on_hurtbox_hit(hit_data: Dictionary) -> bool:
 
 func on_power_cord_unplugged() -> void:
 	if stats.cord_unplug_shutdown:
-		_enter_shutdown()
+		_enter_shutdown(&"cord_unplug")
 	else:
 		_enter_stagger(stats.cord_unplug_stagger_duration)
 
 
 func on_water_weakness_triggered() -> void:
 	if stats.water_instant_defeat:
-		_enter_shutdown()
+		_enter_shutdown(&"water")
 
 
 func _collect_patrol_points() -> void:
@@ -137,6 +144,9 @@ func _connect_signals() -> void:
 	if water_short_circuit_area != null:
 		water_short_circuit_area.area_entered.connect(_on_water_short_circuit_area_entered)
 		water_short_circuit_area.body_entered.connect(_on_water_short_circuit_body_entered)
+
+	if encounter_bounds != null:
+		encounter_bounds.body_exited.connect(_on_encounter_bounds_body_exited)
 
 
 func _patrol(delta: float) -> void:
@@ -255,7 +265,7 @@ func _enter_stagger(duration: float) -> void:
 		animation_player.play(&"stagger")
 
 
-func _enter_shutdown() -> void:
+func _enter_shutdown(reason: StringName = &"defeated") -> void:
 	if charge_hitbox != null:
 		charge_hitbox.enabled = false
 
@@ -263,6 +273,25 @@ func _enter_shutdown() -> void:
 	state = VacuumState.SHUTDOWN
 	if animation_player != null and animation_player.has_animation(&"shutdown"):
 		animation_player.play(&"shutdown")
+
+	if not _disabled_emitted:
+		_disabled_emitted = true
+		disabled.emit(reason)
+
+
+func _reset_to_leash_home() -> void:
+	if state == VacuumState.SHUTDOWN:
+		return
+
+	if charge_hitbox != null:
+		charge_hitbox.enabled = false
+
+	_target = null
+	velocity = Vector3.ZERO
+	global_transform = _home_transform
+	state = VacuumState.PATROL
+	_patrol_index = 0
+	_set_next_patrol_target()
 
 
 func _update_facing(delta: float) -> void:
@@ -321,6 +350,11 @@ func _on_water_short_circuit_area_entered(area: Area3D) -> void:
 func _on_water_short_circuit_body_entered(body: Node3D) -> void:
 	if body.is_in_group("water_hazard") or body.name.to_lower().contains("water"):
 		on_water_weakness_triggered()
+
+
+func _on_encounter_bounds_body_exited(body: Node3D) -> void:
+	if body == _target and _is_player_candidate(body):
+		_reset_to_leash_home()
 
 
 func _is_player_candidate(body: Node) -> bool:
