@@ -3,18 +3,15 @@
 [ext_resource type="Script" path="res://scripts/abilities/hairball_projectile.gd" id="1_projectile"]
 [ext_resource type="Resource" path="res://resources/abilities/hairball_data.tres" id="2_data"]
 [ext_resource type="PackedScene" path="res://scenes/effects/hairball_impact_effect.tscn" id="3_hairball_impact"]
+[ext_resource type="Material" path="res://resources/materials/weakness_interactable_proxy.tres" id="4_weakness_material"]
 
 [sub_resource type="SphereShape3D" id="1_shape"]
 radius = 0.08
 
-[sub_resource type="StandardMaterial3D" id="2_material"]
-albedo_color = Color(0.65, 0.9, 0.45, 1)
-roughness = 0.9
-
 [sub_resource type="SphereMesh" id="3_mesh"]
 radius = 0.08
 height = 0.16
-material = SubResource("2_material")
+material = ExtResource("4_weakness_material")
 
 [node name="HairballProjectile" type="Area3D"]
 script = ExtResource("1_projectile")

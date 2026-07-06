@@ -5,58 +5,43 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="3_hud"]
 [ext_resource type="PackedScene" path="res://scenes/levels/living_room.tscn" id="4_living_room"]
 [ext_resource type="PackedScene" path="res://scenes/debug/debug_overlay.tscn" id="5_debug_overlay"]
-
-[sub_resource type="StandardMaterial3D" id="1_floor_material"]
-albedo_color = Color(0.42, 0.34, 0.26, 1)
-roughness = 0.85
-
-[sub_resource type="StandardMaterial3D" id="2_wall_material"]
-albedo_color = Color(0.52, 0.58, 0.56, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="3_blocker_material"]
-albedo_color = Color(0.72, 0.16, 0.12, 1)
-roughness = 0.65
-
-[sub_resource type="StandardMaterial3D" id="4_trim_material"]
-albedo_color = Color(0.18, 0.13, 0.1, 1)
-roughness = 0.75
-
-[sub_resource type="StandardMaterial3D" id="13_gate_cleared_material"]
-albedo_color = Color(0.16, 0.75, 0.28, 1)
-roughness = 0.65
+[ext_resource type="Material" path="res://resources/materials/floor_proxy.tres" id="6_floor_material"]
+[ext_resource type="Material" path="res://resources/materials/wall_proxy.tres" id="7_wall_material"]
+[ext_resource type="Material" path="res://resources/materials/gate_blocked_proxy.tres" id="8_gate_blocked_material"]
+[ext_resource type="Material" path="res://resources/materials/platform_proxy.tres" id="9_platform_material"]
+[ext_resource type="Material" path="res://resources/materials/gate_cleared_proxy.tres" id="10_gate_cleared_material"]
 
 [sub_resource type="BoxMesh" id="5_floor_mesh"]
 size = Vector3(4, 0.12, 8)
-material = SubResource("1_floor_material")
+material = ExtResource("6_floor_material")
 
 [sub_resource type="BoxShape3D" id="6_floor_shape"]
 size = Vector3(4, 0.12, 8)
 
 [sub_resource type="BoxMesh" id="7_wall_mesh"]
 size = Vector3(0.16, 1.7, 8)
-material = SubResource("2_wall_material")
+material = ExtResource("7_wall_material")
 
 [sub_resource type="BoxShape3D" id="8_wall_shape"]
 size = Vector3(0.16, 1.7, 8)
 
 [sub_resource type="BoxMesh" id="9_blocker_mesh"]
 size = Vector3(1.4, 1.2, 0.18)
-material = SubResource("3_blocker_material")
+material = ExtResource("8_gate_blocked_material")
 
 [sub_resource type="BoxShape3D" id="10_blocker_shape"]
 size = Vector3(1.4, 1.2, 0.18)
 
 [sub_resource type="BoxMesh" id="11_trim_mesh"]
 size = Vector3(1.8, 0.12, 0.12)
-material = SubResource("4_trim_material")
+material = ExtResource("9_platform_material")
 
 [sub_resource type="BoxShape3D" id="12_trim_shape"]
 size = Vector3(1.8, 0.12, 0.12)
 
 [sub_resource type="BoxMesh" id="14_gate_cleared_mesh"]
 size = Vector3(1.2, 1.0, 0.08)
-material = SubResource("13_gate_cleared_material")
+material = ExtResource("10_gate_cleared_material")
 
 [node name="HallwayHub" type="Node3D"]
 script = ExtResource("1_hub")

@@ -1,57 +1,38 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/enemies/vacuum/vacuum.tscn" id="1_vacuum"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/robot_vacuum/robot_vacuum.tscn" id="2_robot"]
 [ext_resource type="Script" path="res://scripts/levels/living_room.gd" id="3_living_room"]
-
-[sub_resource type="StandardMaterial3D" id="1_floor_material"]
-albedo_color = Color(0.45, 0.38, 0.3, 1)
-roughness = 0.85
-
-[sub_resource type="StandardMaterial3D" id="2_wall_material"]
-albedo_color = Color(0.58, 0.66, 0.62, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="3_furniture_material"]
-albedo_color = Color(0.32, 0.22, 0.14, 1)
-roughness = 0.7
-
-[sub_resource type="StandardMaterial3D" id="4_water_material"]
-albedo_color = Color(0.2, 0.55, 0.9, 0.65)
-roughness = 0.25
-
-[sub_resource type="StandardMaterial3D" id="5_stair_material"]
-albedo_color = Color(0.36, 0.31, 0.27, 1)
-roughness = 0.8
-
-[sub_resource type="StandardMaterial3D" id="6_outlet_material"]
-albedo_color = Color(0.9, 0.88, 0.8, 1)
-roughness = 0.5
+[ext_resource type="Material" path="res://resources/materials/floor_proxy.tres" id="4_floor_material"]
+[ext_resource type="Material" path="res://resources/materials/wall_proxy.tres" id="5_wall_material"]
+[ext_resource type="Material" path="res://resources/materials/platform_proxy.tres" id="6_platform_material"]
+[ext_resource type="Material" path="res://resources/materials/weakness_interactable_proxy.tres" id="7_weakness_material"]
+[ext_resource type="Material" path="res://resources/materials/hazard_proxy.tres" id="8_hazard_material"]
 
 [sub_resource type="BoxMesh" id="7_floor_mesh"]
 size = Vector3(8, 0.12, 8)
-material = SubResource("1_floor_material")
+material = ExtResource("4_floor_material")
 
 [sub_resource type="BoxShape3D" id="8_floor_shape"]
 size = Vector3(8, 0.12, 8)
 
 [sub_resource type="BoxMesh" id="9_wall_mesh"]
 size = Vector3(8, 1.8, 0.16)
-material = SubResource("2_wall_material")
+material = ExtResource("5_wall_material")
 
 [sub_resource type="BoxShape3D" id="10_wall_shape"]
 size = Vector3(8, 1.8, 0.16)
 
 [sub_resource type="BoxMesh" id="11_counter_mesh"]
 size = Vector3(2.2, 0.55, 0.8)
-material = SubResource("3_furniture_material")
+material = ExtResource("6_platform_material")
 
 [sub_resource type="BoxShape3D" id="12_counter_shape"]
 size = Vector3(2.2, 0.55, 0.8)
 
 [sub_resource type="BoxMesh" id="13_shelf_mesh"]
 size = Vector3(1.8, 0.18, 0.5)
-material = SubResource("3_furniture_material")
+material = ExtResource("6_platform_material")
 
 [sub_resource type="BoxShape3D" id="14_shelf_shape"]
 size = Vector3(1.8, 0.18, 0.5)
@@ -59,14 +40,14 @@ size = Vector3(1.8, 0.18, 0.5)
 [sub_resource type="SphereMesh" id="15_water_mesh"]
 radius = 0.28
 height = 0.08
-material = SubResource("4_water_material")
+material = ExtResource("7_weakness_material")
 
 [sub_resource type="SphereShape3D" id="16_water_shape"]
 radius = 0.36
 
 [sub_resource type="BoxMesh" id="17_step_mesh"]
 size = Vector3(1.4, 0.18, 0.5)
-material = SubResource("5_stair_material")
+material = ExtResource("6_platform_material")
 
 [sub_resource type="BoxShape3D" id="18_encounter_bounds_shape"]
 size = Vector3(7.2, 2.0, 6.8)
@@ -166,8 +147,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, -0.6)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Staircase/StairFallWeaknessVolume"]
 shape = SubResource("14_shelf_shape")
 
+[node name="WeaknessEdgeProxy" type="MeshInstance3D" parent="Staircase/StairFallWeaknessVolume"]
+transform = Transform3D(0.8, 0, 0, 0, 0.35, 0, 0, 0, 0.35, 0, 0.08, 0)
+material_override = ExtResource("7_weakness_material")
+mesh = SubResource("17_step_mesh")
+
 [node name="WallOutletProxy" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0.35, -3.91)
+material_override = ExtResource("7_weakness_material")
 mesh = SubResource("13_shelf_mesh")
 
 [node name="Vacuum" parent="." instance=ExtResource("1_vacuum")]

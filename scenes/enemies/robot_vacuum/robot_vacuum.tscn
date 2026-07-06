@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=28 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/robot_vacuum/robot_vacuum.gd" id="1_robot"]
 [ext_resource type="Resource" path="res://resources/enemy_stats/robot_vacuum_stats.tres" id="2_stats"]
@@ -9,6 +9,10 @@
 [ext_resource type="PackedScene" path="res://scenes/effects/stagger_effect.tscn" id="7_stagger_effect"]
 [ext_resource type="PackedScene" path="res://scenes/effects/robot_flip_effect.tscn" id="8_flip_effect"]
 [ext_resource type="PackedScene" path="res://scenes/effects/enemy_shutdown_effect.tscn" id="9_shutdown_effect"]
+[ext_resource type="Material" path="res://resources/materials/enemy_proxy.tres" id="10_enemy_material"]
+[ext_resource type="Material" path="res://resources/materials/hazard_proxy.tres" id="11_hazard_material"]
+[ext_resource type="Material" path="res://resources/materials/weakness_interactable_proxy.tres" id="12_weakness_material"]
+[ext_resource type="Material" path="res://resources/materials/inactive_disabled_proxy.tres" id="13_inactive_material"]
 
 [sub_resource type="BoxShape3D" id="1_body_collision"]
 size = Vector3(0.62, 0.16, 0.62)
@@ -28,33 +32,21 @@ size = Vector3(0.48, 0.08, 0.48)
 [sub_resource type="BoxShape3D" id="6_stair_detector_shape"]
 size = Vector3(0.72, 0.12, 0.72)
 
-[sub_resource type="StandardMaterial3D" id="7_body_material"]
-albedo_color = Color(0.12, 0.16, 0.18, 1)
-roughness = 0.75
-
-[sub_resource type="StandardMaterial3D" id="8_bumper_material"]
-albedo_color = Color(0.84, 0.18, 0.14, 1)
-roughness = 0.65
-
-[sub_resource type="StandardMaterial3D" id="9_indicator_material"]
-albedo_color = Color(0.2, 0.75, 0.9, 1)
-roughness = 0.6
-
 [sub_resource type="BoxMesh" id="10_body_mesh"]
 size = Vector3(0.6, 0.14, 0.6)
-material = SubResource("7_body_material")
+material = ExtResource("10_enemy_material")
 
 [sub_resource type="BoxMesh" id="11_bumper_mesh"]
 size = Vector3(0.62, 0.08, 0.08)
-material = SubResource("8_bumper_material")
+material = ExtResource("11_hazard_material")
 
 [sub_resource type="BoxMesh" id="12_wheel_mesh"]
 size = Vector3(0.08, 0.08, 0.18)
-material = SubResource("7_body_material")
+material = ExtResource("13_inactive_material")
 
 [sub_resource type="BoxMesh" id="13_indicator_mesh"]
 size = Vector3(0.3, 0.035, 0.3)
-material = SubResource("9_indicator_material")
+material = ExtResource("12_weakness_material")
 
 [sub_resource type="Animation" id="14_bump_attack_anim"]
 resource_name = "bump_attack"

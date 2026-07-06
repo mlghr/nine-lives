@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=33 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/vacuum/vacuum.gd" id="1_vacuum"]
 [ext_resource type="Resource" path="res://resources/enemy_stats/vacuum_stats.tres" id="2_stats"]
@@ -10,6 +10,10 @@
 [ext_resource type="PackedScene" path="res://scenes/effects/stagger_effect.tscn" id="8_stagger_effect"]
 [ext_resource type="PackedScene" path="res://scenes/effects/cord_unplug_effect.tscn" id="9_unplug_effect"]
 [ext_resource type="PackedScene" path="res://scenes/effects/enemy_shutdown_effect.tscn" id="10_shutdown_effect"]
+[ext_resource type="Material" path="res://resources/materials/enemy_proxy.tres" id="11_enemy_material"]
+[ext_resource type="Material" path="res://resources/materials/hazard_proxy.tres" id="12_hazard_material"]
+[ext_resource type="Material" path="res://resources/materials/weakness_interactable_proxy.tres" id="13_weakness_material"]
+[ext_resource type="Material" path="res://resources/materials/inactive_disabled_proxy.tres" id="14_inactive_material"]
 
 [sub_resource type="BoxShape3D" id="1_body_collision"]
 size = Vector3(0.45, 0.95, 0.35)
@@ -32,41 +36,29 @@ size = Vector3(0.12, 0.1, 0.52)
 [sub_resource type="SphereShape3D" id="7_water_shape"]
 radius = 0.45
 
-[sub_resource type="StandardMaterial3D" id="8_body_material"]
-albedo_color = Color(0.22, 0.26, 0.33, 1)
-roughness = 0.8
-
-[sub_resource type="StandardMaterial3D" id="9_handle_material"]
-albedo_color = Color(0.08, 0.09, 0.11, 1)
-roughness = 0.7
-
-[sub_resource type="StandardMaterial3D" id="10_warning_material"]
-albedo_color = Color(0.9, 0.18, 0.12, 1)
-roughness = 0.65
-
 [sub_resource type="BoxMesh" id="11_body_mesh"]
 size = Vector3(0.42, 0.85, 0.32)
-material = SubResource("8_body_material")
+material = ExtResource("11_enemy_material")
 
 [sub_resource type="BoxMesh" id="12_handle_mesh"]
 size = Vector3(0.08, 0.9, 0.08)
-material = SubResource("9_handle_material")
+material = ExtResource("14_inactive_material")
 
 [sub_resource type="BoxMesh" id="13_head_mesh"]
 size = Vector3(0.55, 0.16, 0.38)
-material = SubResource("10_warning_material")
+material = ExtResource("12_hazard_material")
 
 [sub_resource type="BoxMesh" id="14_wheel_mesh"]
 size = Vector3(0.1, 0.18, 0.08)
-material = SubResource("9_handle_material")
+material = ExtResource("14_inactive_material")
 
 [sub_resource type="BoxMesh" id="15_cord_mesh"]
 size = Vector3(0.04, 0.04, 0.7)
-material = SubResource("9_handle_material")
+material = ExtResource("13_weakness_material")
 
 [sub_resource type="BoxMesh" id="16_outlet_mesh"]
 size = Vector3(0.18, 0.14, 0.04)
-material = SubResource("8_body_material")
+material = ExtResource("13_weakness_material")
 
 [sub_resource type="Animation" id="17_charge_windup_anim"]
 resource_name = "charge_windup"

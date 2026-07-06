@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3]
+[gd_scene load_steps=36 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="2_camera"]
@@ -18,40 +18,29 @@
 [ext_resource type="PackedScene" path="res://scenes/effects/catnip_rage_activate_effect.tscn" id="16_catnip_activate_effect"]
 [ext_resource type="PackedScene" path="res://scenes/effects/catnip_rage_active_effect.tscn" id="17_catnip_active_effect"]
 [ext_resource type="PackedScene" path="res://scenes/effects/catnip_rage_expire_effect.tscn" id="18_catnip_expire_effect"]
+[ext_resource type="Material" path="res://resources/materials/player_proxy.tres" id="19_player_material"]
 
 [sub_resource type="CapsuleShape3D" id="1_body_collision"]
 radius = 0.13
 height = 0.34
 
-[sub_resource type="StandardMaterial3D" id="2_fur_material"]
-albedo_color = Color(0.86, 0.48, 0.22, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="3_face_material"]
-albedo_color = Color(0.95, 0.68, 0.34, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="4_paw_material"]
-albedo_color = Color(0.2, 0.12, 0.1, 1)
-roughness = 0.85
-
 [sub_resource type="CapsuleMesh" id="5_body_mesh"]
 radius = 0.11
 height = 0.45
-material = SubResource("2_fur_material")
+material = ExtResource("19_player_material")
 
 [sub_resource type="SphereMesh" id="6_head_mesh"]
 radius = 0.095
 height = 0.19
-material = SubResource("3_face_material")
+material = ExtResource("19_player_material")
 
 [sub_resource type="BoxMesh" id="7_tail_mesh"]
 size = Vector3(0.055, 0.055, 0.24)
-material = SubResource("2_fur_material")
+material = ExtResource("19_player_material")
 
 [sub_resource type="BoxMesh" id="8_paw_mesh"]
 size = Vector3(0.055, 0.06, 0.075)
-material = SubResource("4_paw_material")
+material = ExtResource("19_player_material")
 
 [sub_resource type="BoxShape3D" id="9_claw_shape"]
 size = Vector3(0.16, 0.14, 0.22)
