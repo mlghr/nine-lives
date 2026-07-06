@@ -1,0 +1,245 @@
+[gd_scene load_steps=23 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/robot_vacuum/robot_vacuum.gd" id="1_robot"]
+[ext_resource type="Resource" path="res://resources/enemy_stats/robot_vacuum_stats.tres" id="2_stats"]
+[ext_resource type="Script" path="res://scripts/components/hitbox_area.gd" id="3_hitbox"]
+[ext_resource type="Script" path="res://scripts/components/hurtbox_area.gd" id="4_hurtbox"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="5_health"]
+
+[sub_resource type="BoxShape3D" id="1_body_collision"]
+size = Vector3(0.62, 0.16, 0.62)
+
+[sub_resource type="SphereShape3D" id="2_detection_shape"]
+radius = 2.8
+
+[sub_resource type="BoxShape3D" id="3_bump_shape"]
+size = Vector3(0.64, 0.18, 0.18)
+
+[sub_resource type="BoxShape3D" id="4_hurtbox_shape"]
+size = Vector3(0.64, 0.18, 0.64)
+
+[sub_resource type="BoxShape3D" id="5_top_weakpoint_shape"]
+size = Vector3(0.48, 0.08, 0.48)
+
+[sub_resource type="BoxShape3D" id="6_stair_detector_shape"]
+size = Vector3(0.72, 0.12, 0.72)
+
+[sub_resource type="StandardMaterial3D" id="7_body_material"]
+albedo_color = Color(0.12, 0.16, 0.18, 1)
+roughness = 0.75
+
+[sub_resource type="StandardMaterial3D" id="8_bumper_material"]
+albedo_color = Color(0.84, 0.18, 0.14, 1)
+roughness = 0.65
+
+[sub_resource type="StandardMaterial3D" id="9_indicator_material"]
+albedo_color = Color(0.2, 0.75, 0.9, 1)
+roughness = 0.6
+
+[sub_resource type="BoxMesh" id="10_body_mesh"]
+size = Vector3(0.6, 0.14, 0.6)
+material = SubResource("7_body_material")
+
+[sub_resource type="BoxMesh" id="11_bumper_mesh"]
+size = Vector3(0.62, 0.08, 0.08)
+material = SubResource("8_bumper_material")
+
+[sub_resource type="BoxMesh" id="12_wheel_mesh"]
+size = Vector3(0.08, 0.08, 0.18)
+material = SubResource("7_body_material")
+
+[sub_resource type="BoxMesh" id="13_indicator_mesh"]
+size = Vector3(0.3, 0.035, 0.3)
+material = SubResource("9_indicator_material")
+
+[sub_resource type="Animation" id="14_bump_attack_anim"]
+resource_name = "bump_attack"
+length = 0.28
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CombatRoot/BumpHitbox:enabled")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.02, 0.22),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+
+[sub_resource type="Animation" id="15_flipped_anim"]
+resource_name = "flipped"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ModelRoot:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(3.14159, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ModelRoot/FlippedIndicatorProxy:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="16_defeated_anim"]
+resource_name = "defeated"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CombatRoot/BumpHitbox:enabled")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ModelRoot/FlippedIndicatorProxy:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="AnimationLibrary" id="17_robot_animations"]
+_data = {
+&"bump_attack": SubResource("14_bump_attack_anim"),
+&"defeated": SubResource("16_defeated_anim"),
+&"flipped": SubResource("15_flipped_anim")
+}
+
+[node name="RobotVacuum" type="CharacterBody3D"]
+script = ExtResource("1_robot")
+stats = ExtResource("2_stats")
+
+[node name="BodyCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0)
+shape = SubResource("1_body_collision")
+
+[node name="ModelRoot" type="Node3D" parent="."]
+
+[node name="BodyProxy" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.09, 0)
+mesh = SubResource("10_body_mesh")
+
+[node name="BumperProxy" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.11, -0.34)
+mesh = SubResource("11_bumper_mesh")
+
+[node name="WheelProxy_L" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.34, 0.08, 0)
+mesh = SubResource("12_wheel_mesh")
+
+[node name="WheelProxy_R" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34, 0.08, 0)
+mesh = SubResource("12_wheel_mesh")
+
+[node name="FlippedIndicatorProxy" type="MeshInstance3D" parent="ModelRoot"]
+visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 0)
+mesh = SubResource("13_indicator_mesh")
+
+[node name="NavigationAgent" type="NavigationAgent3D" parent="."]
+path_desired_distance = 0.2
+target_desired_distance = 0.2
+
+[node name="Sensors" type="Node3D" parent="."]
+
+[node name="PlayerDetectionArea" type="Area3D" parent="Sensors"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Sensors/PlayerDetectionArea"]
+shape = SubResource("2_detection_shape")
+
+[node name="ObstacleProbe_Front" type="RayCast3D" parent="Sensors"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, -0.34)
+enabled = true
+target_position = Vector3(0, 0, -0.35)
+
+[node name="ObstacleProbe_Left" type="RayCast3D" parent="Sensors"]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -0.22, 0.12, -0.22)
+enabled = true
+target_position = Vector3(0, 0, -0.32)
+
+[node name="ObstacleProbe_Right" type="RayCast3D" parent="Sensors"]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0.22, 0.12, -0.22)
+enabled = true
+target_position = Vector3(0, 0, -0.32)
+
+[node name="CombatRoot" type="Node3D" parent="."]
+
+[node name="BumpHitbox" type="Area3D" parent="CombatRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -0.39)
+monitoring = false
+script = ExtResource("3_hitbox")
+source_path = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/BumpHitbox"]
+shape = SubResource("3_bump_shape")
+
+[node name="Hurtbox" type="Area3D" parent="CombatRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+script = ExtResource("4_hurtbox")
+target_path = NodePath("../..")
+health_component_path = NodePath("../../HealthComponent")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/Hurtbox"]
+shape = SubResource("4_hurtbox_shape")
+
+[node name="TopPounceWeakpoint" type="Area3D" parent="CombatRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22, 0)
+script = ExtResource("4_hurtbox")
+target_path = NodePath("../..")
+health_component_path = NodePath("../../HealthComponent")
+hit_marker = &"top_pounce"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/TopPounceWeakpoint"]
+shape = SubResource("5_top_weakpoint_shape")
+
+[node name="WeaknessRoot" type="Node3D" parent="."]
+
+[node name="StairFallDetector" type="Area3D" parent="WeaknessRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.04, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WeaknessRoot/StairFallDetector"]
+shape = SubResource("6_stair_detector_shape")
+
+[node name="FlipStateAnchor" type="Marker3D" parent="WeaknessRoot"]
+transform = Transform3D(1, 0, 0, 0, -1, -8.74228e-08, 0, 8.74228e-08, -1, 0, 0.2, 0)
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("5_health")
+stats = ExtResource("2_stats")
+
+[node name="PatrolRoute" type="Node3D" parent="."]
+
+[node name="PatrolPoint_A" type="Marker3D" parent="PatrolRoute"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0, 0, -0.7)
+
+[node name="PatrolPoint_B" type="Marker3D" parent="PatrolRoute"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0, 0, 0.7)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("17_robot_animations")
