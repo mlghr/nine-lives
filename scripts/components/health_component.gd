@@ -8,6 +8,8 @@ signal defeated
 
 @export var stats: HealthStats
 @export var invulnerable: bool = false
+@export var damage_effect_scene: PackedScene
+@export var stagger_effect_scene: PackedScene
 
 var current_lives: int = 0
 var stagger_buffer: float = 0.0
@@ -50,6 +52,7 @@ func apply_hit(hit_data: Dictionary) -> bool:
 	if damage > 0:
 		current_lives = maxi(current_lives - damage, 0)
 		lives_changed.emit(current_lives, stats.max_lives)
+		_spawn_effect(damage_effect_scene)
 
 	if stagger > 0.0:
 		_apply_stagger(stagger)
@@ -78,9 +81,31 @@ func _apply_stagger(stagger: float) -> void:
 	if stagger >= stats.small_hit_stagger_threshold:
 		stagger_buffer = 0.0
 		stagger_started.emit(stagger)
+		_spawn_effect(stagger_effect_scene)
 		return
 
 	stagger_buffer += stagger
 	if stagger_buffer >= stats.stagger_buffer_limit:
 		stagger_buffer = 0.0
 		stagger_started.emit(stagger)
+		_spawn_effect(stagger_effect_scene)
+
+
+func _spawn_effect(effect_scene: PackedScene) -> void:
+	if effect_scene == null:
+		return
+
+	var owner_node := get_parent() as Node3D
+	if owner_node == null:
+		return
+
+	var effect := effect_scene.instantiate() as Node3D
+	if effect == null:
+		return
+
+	var parent := get_tree().current_scene
+	if parent == null:
+		parent = owner_node
+
+	parent.add_child(effect)
+	effect.global_position = owner_node.global_position

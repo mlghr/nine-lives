@@ -7,6 +7,7 @@ extends Area3D
 @export_range(0.0, 1.0, 0.01) var knockdown_chance: float = 0.0
 @export var invulnerable_time: float = 0.2
 @export var hit_type: StringName = &"claw"
+@export var hit_effect_scene: PackedScene
 @export_node_path("Node") var source_path: NodePath = ^"../.."
 
 @export var enabled: bool = false:
@@ -30,7 +31,8 @@ func _on_area_entered(area: Area3D) -> void:
 		return
 
 	if area.has_method("receive_hit"):
-		area.receive_hit(_build_hit_data())
+		if area.receive_hit(_build_hit_data()):
+			_spawn_effect(area.global_position)
 
 
 func _build_hit_data() -> Dictionary:
@@ -44,3 +46,19 @@ func _build_hit_data() -> Dictionary:
 		"hit_type": hit_type,
 		"direction": -global_transform.basis.z,
 	}
+
+
+func _spawn_effect(effect_position: Vector3) -> void:
+	if hit_effect_scene == null:
+		return
+
+	var effect := hit_effect_scene.instantiate() as Node3D
+	if effect == null:
+		return
+
+	var parent := get_tree().current_scene
+	if parent == null:
+		parent = self
+
+	parent.add_child(effect)
+	effect.global_position = effect_position

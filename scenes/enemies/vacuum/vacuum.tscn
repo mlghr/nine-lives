@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/vacuum/vacuum.gd" id="1_vacuum"]
 [ext_resource type="Resource" path="res://resources/enemy_stats/vacuum_stats.tres" id="2_stats"]
@@ -6,6 +6,10 @@
 [ext_resource type="Script" path="res://scripts/components/hurtbox_area.gd" id="4_hurtbox"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="5_health"]
 [ext_resource type="Script" path="res://scripts/enemies/vacuum/power_cord.gd" id="6_power_cord"]
+[ext_resource type="PackedScene" path="res://scenes/effects/player_damage_effect.tscn" id="7_damage_effect"]
+[ext_resource type="PackedScene" path="res://scenes/effects/stagger_effect.tscn" id="8_stagger_effect"]
+[ext_resource type="PackedScene" path="res://scenes/effects/cord_unplug_effect.tscn" id="9_unplug_effect"]
+[ext_resource type="PackedScene" path="res://scenes/effects/enemy_shutdown_effect.tscn" id="10_shutdown_effect"]
 
 [sub_resource type="BoxShape3D" id="1_body_collision"]
 size = Vector3(0.45, 0.95, 0.35)
@@ -67,6 +71,30 @@ material = SubResource("8_body_material")
 [sub_resource type="Animation" id="17_charge_windup_anim"]
 resource_name = "charge_windup"
 length = 0.45
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ModelRoot:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.08, 0.16, 0.24, 0.32, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0.04, 0, 0), Vector3(-0.04, 0, 0), Vector3(0.035, 0, 0), Vector3(-0.025, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("ModelRoot/HeadProxy:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.22, 0.45),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(1, 1, 1), Vector3(1.25, 1.25, 1.25), Vector3(1, 1, 1)]
+}
 
 [sub_resource type="Animation" id="18_charge_attack_anim"]
 resource_name = "charge_attack"
@@ -139,6 +167,7 @@ _data = {
 [node name="Vacuum" type="CharacterBody3D"]
 script = ExtResource("1_vacuum")
 stats = ExtResource("2_stats")
+shutdown_effect_scene = ExtResource("10_shutdown_effect")
 
 [node name="BodyCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 0)
@@ -188,6 +217,7 @@ shape = SubResource("3_charge_commit_shape")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, -0.34)
 monitoring = false
 script = ExtResource("3_hitbox")
+hit_effect_scene = ExtResource("7_damage_effect")
 source_path = NodePath("../..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/ChargeHitbox"]
@@ -206,6 +236,7 @@ shape = SubResource("5_hurtbox_shape")
 
 [node name="PowerCord" type="Node3D" parent="WeaknessRoot"]
 script = ExtResource("6_power_cord")
+unplug_effect_scene = ExtResource("9_unplug_effect")
 
 [node name="CordMesh" type="MeshInstance3D" parent="WeaknessRoot/PowerCord"]
 transform = Transform3D(1, 0, 0, 0, 0.984808, -0.173648, 0, 0.173648, 0.984808, 0, 0.08, 0.48)
@@ -235,6 +266,8 @@ shape = SubResource("7_water_shape")
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("5_health")
 stats = ExtResource("2_stats")
+damage_effect_scene = ExtResource("7_damage_effect")
+stagger_effect_scene = ExtResource("8_stagger_effect")
 
 [node name="AudioCuePoints" type="Node3D" parent="."]
 

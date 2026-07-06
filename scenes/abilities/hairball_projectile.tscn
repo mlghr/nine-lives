@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/abilities/hairball_projectile.gd" id="1_projectile"]
 [ext_resource type="Resource" path="res://resources/abilities/hairball_data.tres" id="2_data"]
+[ext_resource type="PackedScene" path="res://scenes/effects/hairball_impact_effect.tscn" id="3_hairball_impact"]
 
 [sub_resource type="SphereShape3D" id="1_shape"]
 radius = 0.08
@@ -18,6 +19,7 @@ material = SubResource("2_material")
 [node name="HairballProjectile" type="Area3D"]
 script = ExtResource("1_projectile")
 data = ExtResource("2_data")
+impact_effect_scene = ExtResource("3_hairball_impact")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("1_shape")
