@@ -167,7 +167,7 @@ Resource plug-ins:
 
 ## Decisions Needing Sign-off
 
-- Camera actions use mouse motion for `camera_look`, arrow keys for keyboard fallback, and right-stick directional actions for `camera_look_left/right/up/down`. The final camera script should confirm sensitivity and pitch clamp feel.
+- Camera actions use mouse motion for `camera_look` and right-stick directional actions for `camera_look_left/right/up/down`. Keyboard arrow camera look is intentionally omitted; Work Item 2, the player movement and camera pass, should tune sensitivity and pitch clamp feel.
 - The shared `scenes/components/` and `scripts/components/` folders are added now for WI3 reusable combat/health components.
-- The player tree keeps `CameraRig` inside `player.tscn` for the first slice. If a reusable camera scene is preferred, WI2 can split it into `scenes/player/camera_rig.tscn` before gameplay code depends on it.
-- Vacuum and robot vacuum both use `CharacterBody3D` plus `NavigationAgent3D` for controllable enemy movement. This is conservative for authored patrols, but physics-driven movement could be revisited if object pushing becomes central later.
+- The player tree keeps `CameraRig` inside `player.tscn` for the first slice. If a reusable camera scene is preferred, Work Item 2 can split it into `scenes/player/camera_rig.tscn` before gameplay code depends on it.
+- Vacuum and robot vacuum both use `CharacterBody3D` plus `NavigationAgent3D` for controllable enemy movement.
