@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="PlayerStats" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/player_stats.gd" id="1_stats"]
+
+[resource]
+script = ExtResource("1_stats")
+walk_speed = 2.2
+run_speed = 4.4
+walk_input_threshold = 0.35
+run_input_threshold = 0.95
+acceleration = 18.0
+deceleration = 24.0
+air_acceleration = 7.0
+turn_speed = 12.0
+facing_deadzone = 0.05
+jump_velocity = 4.2
+gravity = 12.5
+coyote_time = 0.12
+grounded_snap_velocity = -0.1
+mouse_sensitivity = 0.003
+controller_look_speed = 2.4
+controller_look_deadzone = 0.12
+min_pitch_degrees = -55.0
+max_pitch_degrees = 18.0
+camera_boom_length = 2.4
+camera_collision_margin = 0.08

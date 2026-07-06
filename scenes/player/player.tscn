@@ -1,0 +1,115 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="2_camera"]
+[ext_resource type="Resource" path="res://resources/player/player_stats.tres" id="3_stats"]
+
+[sub_resource type="CapsuleShape3D" id="1_body_collision"]
+radius = 0.13
+height = 0.34
+
+[sub_resource type="StandardMaterial3D" id="2_fur_material"]
+albedo_color = Color(0.86, 0.48, 0.22, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="3_face_material"]
+albedo_color = Color(0.95, 0.68, 0.34, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="4_paw_material"]
+albedo_color = Color(0.2, 0.12, 0.1, 1)
+roughness = 0.85
+
+[sub_resource type="CapsuleMesh" id="5_body_mesh"]
+radius = 0.11
+height = 0.45
+material = SubResource("2_fur_material")
+
+[sub_resource type="SphereMesh" id="6_head_mesh"]
+radius = 0.095
+height = 0.19
+material = SubResource("3_face_material")
+
+[sub_resource type="BoxMesh" id="7_tail_mesh"]
+size = Vector3(0.055, 0.055, 0.24)
+material = SubResource("2_fur_material")
+
+[sub_resource type="BoxMesh" id="8_paw_mesh"]
+size = Vector3(0.055, 0.06, 0.075)
+material = SubResource("4_paw_material")
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_player")
+stats = ExtResource("3_stats")
+model_root_path = NodePath("ModelRoot")
+camera_rig_path = NodePath("CameraRig")
+
+[node name="BodyCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.17, 0)
+shape = SubResource("1_body_collision")
+
+[node name="ModelRoot" type="Node3D" parent="."]
+
+[node name="BodyProxy" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.22, 0)
+mesh = SubResource("5_body_mesh")
+
+[node name="HeadProxy" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, -0.255)
+mesh = SubResource("6_head_mesh")
+
+[node name="TailProxy" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 0.819152, -0.573576, 0, 0.573576, 0.819152, 0, 0.24, 0.27)
+mesh = SubResource("7_tail_mesh")
+
+[node name="PawProxy_FL" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.075, 0.04, -0.13)
+mesh = SubResource("8_paw_mesh")
+
+[node name="PawProxy_FR" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.075, 0.04, -0.13)
+mesh = SubResource("8_paw_mesh")
+
+[node name="PawProxy_BL" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.075, 0.04, 0.13)
+mesh = SubResource("8_paw_mesh")
+
+[node name="PawProxy_BR" type="MeshInstance3D" parent="ModelRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.075, 0.04, 0.13)
+mesh = SubResource("8_paw_mesh")
+
+[node name="FacingMarker" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, -0.35)
+
+[node name="GroundProbe" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 0)
+enabled = true
+target_position = Vector3(0, -0.32, 0)
+
+[node name="CameraRig" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26, 0)
+script = ExtResource("2_camera")
+stats = ExtResource("3_stats")
+yaw_pivot_path = NodePath("YawPivot")
+pitch_pivot_path = NodePath("YawPivot/PitchPivot")
+camera_boom_path = NodePath("YawPivot/PitchPivot/CameraBoom")
+
+[node name="YawPivot" type="Node3D" parent="CameraRig"]
+
+[node name="PitchPivot" type="Node3D" parent="CameraRig/YawPivot"]
+rotation = Vector3(-0.20944, 0, 0)
+
+[node name="CameraBoom" type="SpringArm3D" parent="CameraRig/YawPivot/PitchPivot"]
+spring_length = 2.4
+margin = 0.08
+
+[node name="Camera" type="Camera3D" parent="CameraRig/YawPivot/PitchPivot/CameraBoom"]
+current = true
+fov = 70.0
+
+[node name="CombatRoot" type="Node3D" parent="."]
+
+[node name="HairballSpawn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22, -0.36)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
