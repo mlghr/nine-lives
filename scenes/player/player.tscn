@@ -1,8 +1,12 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="2_camera"]
 [ext_resource type="Resource" path="res://resources/player/player_stats.tres" id="3_stats"]
+[ext_resource type="Script" path="res://scripts/components/hitbox_area.gd" id="4_hitbox"]
+[ext_resource type="Script" path="res://scripts/components/hurtbox_area.gd" id="5_hurtbox"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="6_health"]
+[ext_resource type="Resource" path="res://resources/player/player_health.tres" id="7_health_stats"]
 
 [sub_resource type="CapsuleShape3D" id="1_body_collision"]
 radius = 0.13
@@ -38,11 +42,244 @@ material = SubResource("2_fur_material")
 size = Vector3(0.055, 0.06, 0.075)
 material = SubResource("4_paw_material")
 
+[sub_resource type="BoxShape3D" id="9_claw_shape"]
+size = Vector3(0.16, 0.14, 0.22)
+
+[sub_resource type="BoxShape3D" id="10_pounce_shape"]
+size = Vector3(0.24, 0.18, 0.28)
+
+[sub_resource type="BoxShape3D" id="11_hiss_shape"]
+size = Vector3(0.52, 0.28, 0.42)
+
+[sub_resource type="CapsuleShape3D" id="12_hurtbox_shape"]
+radius = 0.14
+height = 0.36
+
+[sub_resource type="Animation" id="13_claw_1_anim"]
+resource_name = "claw_1"
+length = 0.35
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CombatRoot/ClawHitbox_L:enabled")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.08, 0.18),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.35),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_finish_combat_action"
+}]
+}
+
+[sub_resource type="Animation" id="14_claw_2_anim"]
+resource_name = "claw_2"
+length = 0.38
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CombatRoot/ClawHitbox_R:enabled")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.09, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.38),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_finish_combat_action"
+}]
+}
+
+[sub_resource type="Animation" id="15_claw_3_anim"]
+resource_name = "claw_3"
+length = 0.48
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CombatRoot/ClawHitbox_L:enabled")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.26),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CombatRoot/ClawHitbox_R:enabled")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.16, 0.32),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.48),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_finish_combat_action"
+}]
+}
+
+[sub_resource type="Animation" id="16_pounce_anim"]
+resource_name = "pounce"
+length = 0.55
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CombatRoot/PounceHitbox:enabled")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.34),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.55),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_finish_combat_action"
+}]
+}
+
+[sub_resource type="Animation" id="17_dodge_roll_anim"]
+resource_name = "dodge_roll"
+length = 0.45
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("HealthComponent:invulnerable")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.35),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "method"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.45),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_finish_dodge"
+}]
+}
+
+[sub_resource type="Animation" id="18_hiss_anim"]
+resource_name = "hiss"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:parry_active")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.08, 0.28),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CombatRoot/HissParryArea:enabled")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.08, 0.28),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.5),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_finish_combat_action"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="19_combat_animations"]
+_data = {
+&"claw_1": SubResource("13_claw_1_anim"),
+&"claw_2": SubResource("14_claw_2_anim"),
+&"claw_3": SubResource("15_claw_3_anim"),
+&"dodge_roll": SubResource("17_dodge_roll_anim"),
+&"hiss": SubResource("18_hiss_anim"),
+&"pounce": SubResource("16_pounce_anim")
+}
+
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_player")
 stats = ExtResource("3_stats")
 model_root_path = NodePath("ModelRoot")
 camera_rig_path = NodePath("CameraRig")
+animation_player_path = NodePath("AnimationPlayer")
+health_component_path = NodePath("HealthComponent")
+claw_left_hitbox_path = NodePath("CombatRoot/ClawHitbox_L")
+claw_right_hitbox_path = NodePath("CombatRoot/ClawHitbox_R")
+pounce_hitbox_path = NodePath("CombatRoot/PounceHitbox")
+hiss_parry_area_path = NodePath("CombatRoot/HissParryArea")
 
 [node name="BodyCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.17, 0)
@@ -109,7 +346,57 @@ fov = 70.0
 
 [node name="CombatRoot" type="Node3D" parent="."]
 
+[node name="ClawHitbox_L" type="Area3D" parent="CombatRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12, 0.17, -0.32)
+monitoring = false
+script = ExtResource("4_hitbox")
+source_path = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/ClawHitbox_L"]
+shape = SubResource("9_claw_shape")
+
+[node name="ClawHitbox_R" type="Area3D" parent="CombatRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0.17, -0.32)
+monitoring = false
+script = ExtResource("4_hitbox")
+source_path = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/ClawHitbox_R"]
+shape = SubResource("9_claw_shape")
+
+[node name="PounceHitbox" type="Area3D" parent="CombatRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, -0.36)
+monitoring = false
+script = ExtResource("4_hitbox")
+source_path = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/PounceHitbox"]
+shape = SubResource("10_pounce_shape")
+
+[node name="HissParryArea" type="Area3D" parent="CombatRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, -0.42)
+monitoring = false
+script = ExtResource("4_hitbox")
+source_path = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/HissParryArea"]
+shape = SubResource("11_hiss_shape")
+
+[node name="Hurtbox" type="Area3D" parent="CombatRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.17, 0)
+script = ExtResource("5_hurtbox")
+target_path = NodePath("../..")
+health_component_path = NodePath("../../HealthComponent")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/Hurtbox"]
+shape = SubResource("12_hurtbox_shape")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("6_health")
+stats = ExtResource("7_health_stats")
+
 [node name="HairballSpawn" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22, -0.36)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("19_combat_animations")

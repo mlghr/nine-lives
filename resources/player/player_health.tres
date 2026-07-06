@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="HealthStats" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/components/health_stats.gd" id="1_health_stats"]
+
+[resource]
+script = ExtResource("1_health_stats")
+max_lives = 9
+small_hit_stagger_threshold = 1.0
+stagger_buffer_limit = 2.0
+stagger_buffer_recovery = 1.0
+default_invulnerable_time = 0.35
+defeat_stagger_time = 1.0
