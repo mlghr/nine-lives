@@ -26,3 +26,21 @@ extends Resource
 @export var max_pitch_degrees: float = 18.0
 @export var camera_boom_length: float = 2.4
 @export var camera_collision_margin: float = 0.08
+
+@export_group("Combat")
+@export var claw_combo_reset_seconds: float = 0.7
+@export var claw_1_damage: int = 1
+@export var claw_2_damage: int = 1
+@export var claw_3_damage: int = 2
+@export var claw_stagger: float = 0.35
+@export var claw_knockback_force: float = 1.2
+@export var pounce_damage: int = 2
+@export var pounce_stagger: float = 1.25
+@export var pounce_knockback_force: float = 3.0
+@export_range(0.0, 1.0, 0.01) var pounce_knockdown_chance: float = 0.35
+@export var pounce_forward_speed: float = 5.4
+@export var pounce_up_velocity: float = 2.6
+@export var dodge_speed: float = 5.8
+@export var hiss_damage: int = 0
+@export var hiss_stagger: float = 1.0
+@export var hiss_knockback_force: float = 1.8

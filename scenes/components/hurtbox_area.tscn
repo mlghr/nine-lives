@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/components/hurtbox_area.gd" id="1_hurtbox"]
+
+[sub_resource type="CapsuleShape3D" id="1_shape"]
+radius = 0.14
+height = 0.34
+
+[node name="HurtboxArea" type="Area3D"]
+script = ExtResource("1_hurtbox")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("1_shape")
