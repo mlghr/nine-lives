@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HairballData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/abilities/hairball_data.gd" id="1_hairball_data"]
+
+[resource]
+script = ExtResource("1_hairball_data")
+cooldown = 2.5
+speed = 7.0
+lifetime = 1.6
+damage = 1
+stagger = 1.2
+knockback_force = 1.5
+radius = 0.08

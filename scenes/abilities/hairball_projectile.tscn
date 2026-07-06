@@ -1,0 +1,26 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/abilities/hairball_projectile.gd" id="1_projectile"]
+[ext_resource type="Resource" path="res://resources/abilities/hairball_data.tres" id="2_data"]
+
+[sub_resource type="SphereShape3D" id="1_shape"]
+radius = 0.08
+
+[sub_resource type="StandardMaterial3D" id="2_material"]
+albedo_color = Color(0.65, 0.9, 0.45, 1)
+roughness = 0.9
+
+[sub_resource type="SphereMesh" id="3_mesh"]
+radius = 0.08
+height = 0.16
+material = SubResource("2_material")
+
+[node name="HairballProjectile" type="Area3D"]
+script = ExtResource("1_projectile")
+data = ExtResource("2_data")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("1_shape")
+
+[node name="ProjectileProxy" type="MeshInstance3D" parent="."]
+mesh = SubResource("3_mesh")

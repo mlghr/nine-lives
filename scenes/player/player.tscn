@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=29 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="2_camera"]
@@ -7,6 +7,8 @@
 [ext_resource type="Script" path="res://scripts/components/hurtbox_area.gd" id="5_hurtbox"]
 [ext_resource type="Script" path="res://scripts/components/health_component.gd" id="6_health"]
 [ext_resource type="Resource" path="res://resources/player/player_health.tres" id="7_health_stats"]
+[ext_resource type="PackedScene" path="res://scenes/abilities/hairball_projectile.tscn" id="8_hairball_projectile"]
+[ext_resource type="Resource" path="res://resources/abilities/hairball_data.tres" id="9_hairball_data"]
 
 [sub_resource type="CapsuleShape3D" id="1_body_collision"]
 radius = 0.13
@@ -280,6 +282,9 @@ claw_left_hitbox_path = NodePath("CombatRoot/ClawHitbox_L")
 claw_right_hitbox_path = NodePath("CombatRoot/ClawHitbox_R")
 pounce_hitbox_path = NodePath("CombatRoot/PounceHitbox")
 hiss_parry_area_path = NodePath("CombatRoot/HissParryArea")
+hairball_spawn_path = NodePath("HairballSpawn")
+hairball_projectile_scene = ExtResource("8_hairball_projectile")
+hairball_data = ExtResource("9_hairball_data")
 
 [node name="BodyCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.17, 0)
