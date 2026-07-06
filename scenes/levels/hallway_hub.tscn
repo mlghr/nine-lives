@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/levels/hallway_hub.gd" id="1_hub"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
@@ -21,6 +21,10 @@ roughness = 0.65
 [sub_resource type="StandardMaterial3D" id="4_trim_material"]
 albedo_color = Color(0.18, 0.13, 0.1, 1)
 roughness = 0.75
+
+[sub_resource type="StandardMaterial3D" id="13_gate_cleared_material"]
+albedo_color = Color(0.16, 0.75, 0.28, 1)
+roughness = 0.65
 
 [sub_resource type="BoxMesh" id="5_floor_mesh"]
 size = Vector3(4, 0.12, 8)
@@ -49,6 +53,10 @@ material = SubResource("4_trim_material")
 
 [sub_resource type="BoxShape3D" id="12_trim_shape"]
 size = Vector3(1.8, 0.12, 0.12)
+
+[sub_resource type="BoxMesh" id="14_gate_cleared_mesh"]
+size = Vector3(1.2, 1.0, 0.08)
+material = SubResource("13_gate_cleared_material")
 
 [node name="HallwayHub" type="Node3D"]
 script = ExtResource("1_hub")
@@ -87,6 +95,10 @@ mesh = SubResource("9_blocker_mesh")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="KitchenBlockedDoorway"]
 shape = SubResource("10_blocker_shape")
+
+[node name="GateClearedVisual" type="MeshInstance3D" parent="KitchenBlockedDoorway"]
+visible = false
+mesh = SubResource("14_gate_cleared_mesh")
 
 [node name="BathroomBlockedDoorway" type="StaticBody3D" parent="."]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 1.92, 0.6, -0.4)

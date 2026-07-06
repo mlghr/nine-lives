@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/game_manager.gd" id="1_game_manager"]
+[ext_resource type="Resource" path="res://resources/game/living_room_objective.tres" id="2_living_room_objective"]
+
+[node name="GameManager" type="Node"]
+script = ExtResource("1_game_manager")
+objective_state = ExtResource("2_living_room_objective")

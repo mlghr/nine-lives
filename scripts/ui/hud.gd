@@ -3,11 +3,15 @@ extends Control
 @export_node_path("Label") var lives_value_path: NodePath = ^"MarginContainer/VBoxContainer/LivesRow/LivesValue"
 @export_node_path("ProgressBar") var hairball_cooldown_path: NodePath = ^"MarginContainer/VBoxContainer/HairballRow/HairballCooldown"
 @export_node_path("Label") var danger_state_path: NodePath = ^"FeedbackLayer/DangerState"
+@export_node_path("Label") var victory_banner_path: NodePath = ^"FeedbackLayer/VictoryBanner"
+@export_node_path("Label") var game_over_banner_path: NodePath = ^"FeedbackLayer/GameOverBanner"
 @export_node_path("AnimationPlayer") var animation_player_path: NodePath = ^"AnimationPlayer"
 
 @onready var lives_value: Label = get_node_or_null(lives_value_path)
 @onready var hairball_cooldown: ProgressBar = get_node_or_null(hairball_cooldown_path)
 @onready var danger_state: Label = get_node_or_null(danger_state_path)
+@onready var victory_banner: Label = get_node_or_null(victory_banner_path)
+@onready var game_over_banner: Label = get_node_or_null(game_over_banner_path)
 @onready var animation_player: AnimationPlayer = get_node_or_null(animation_player_path)
 
 var _last_lives: int = -1
@@ -46,11 +50,19 @@ func set_hairball_cooldown(remaining: float, cooldown: float) -> void:
 
 
 func show_victory() -> void:
-	_play_feedback(&"cooldown_ready_ping")
+	if game_over_banner != null:
+		game_over_banner.visible = false
+	if victory_banner != null:
+		victory_banner.visible = true
+	_play_feedback(&"victory_banner")
 
 
 func show_game_over() -> void:
-	_play_feedback(&"life_loss_flash")
+	if victory_banner != null:
+		victory_banner.visible = false
+	if game_over_banner != null:
+		game_over_banner.visible = true
+	_play_feedback(&"game_over_banner")
 
 
 func _play_feedback(animation_name: StringName) -> void:
