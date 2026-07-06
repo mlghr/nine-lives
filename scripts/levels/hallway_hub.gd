@@ -2,9 +2,13 @@ extends Node3D
 
 @export_node_path("Node") var player_path: NodePath = ^"Player"
 @export_node_path("Control") var hud_path: NodePath = ^"HUD"
+@export_node_path("DebugOverlay") var debug_overlay_path: NodePath = ^"DebugOverlay"
+@export var debug_overlay_enabled: bool = true
+@export var debug_overlay_starts_visible: bool = false
 
 @onready var player: Node = get_node_or_null(player_path)
 @onready var hud: Control = get_node_or_null(hud_path)
+@onready var debug_overlay: DebugOverlay = get_node_or_null(debug_overlay_path)
 
 
 func _ready() -> void:
@@ -18,6 +22,9 @@ func _ready() -> void:
 
 	if player.has_signal("hairball_cooldown_changed"):
 		player.hairball_cooldown_changed.connect(_on_hairball_cooldown_changed)
+
+	if debug_overlay != null:
+		debug_overlay.configure(player, debug_overlay_enabled, debug_overlay_starts_visible)
 
 
 func _on_lives_changed(current_lives: int, max_lives: int) -> void:

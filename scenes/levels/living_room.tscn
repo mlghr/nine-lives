@@ -170,3 +170,11 @@ transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 
 
 [node name="DoorwayToHall" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+
+[node name="DebugRespawnMarkers" type="Node3D" parent="."]
+
+[node name="LivingRoomCenter" type="Marker3D" parent="DebugRespawnMarkers" groups=["debug_respawn"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0.4)
+
+[node name="CounterPractice" type="Marker3D" parent="DebugRespawnMarkers" groups=["debug_respawn"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2, 0.9, -1.4)
