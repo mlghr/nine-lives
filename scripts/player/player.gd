@@ -7,6 +7,7 @@ signal catnip_rage_changed(active: bool, remaining: float, duration: float, cool
 @export_node_path("Node3D") var model_root_path: NodePath = ^"ModelRoot"
 @export_node_path("Node3D") var camera_rig_path: NodePath = ^"CameraRig"
 @export_node_path("AnimationPlayer") var animation_player_path: NodePath = ^"AnimationPlayer"
+@export_node_path("AnimationPlayer") var visual_animation_player_path: NodePath = ^"ModelRoot/CatModel/AnimationPlayer"
 @export_node_path("HealthComponent") var health_component_path: NodePath = ^"HealthComponent"
 @export_node_path("HitboxArea") var claw_left_hitbox_path: NodePath = ^"CombatRoot/ClawHitbox_L"
 @export_node_path("HitboxArea") var claw_right_hitbox_path: NodePath = ^"CombatRoot/ClawHitbox_R"
@@ -23,6 +24,7 @@ signal catnip_rage_changed(active: bool, remaining: float, duration: float, cool
 @onready var model_root: Node3D = get_node_or_null(model_root_path)
 @onready var camera_rig: Node3D = get_node_or_null(camera_rig_path)
 @onready var animation_player: AnimationPlayer = get_node_or_null(animation_player_path)
+@onready var visual_animation_player: AnimationPlayer = get_node_or_null(visual_animation_player_path)
 @onready var health_component: HealthComponent = get_node_or_null(health_component_path)
 @onready var claw_left_hitbox: HitboxArea = get_node_or_null(claw_left_hitbox_path)
 @onready var claw_right_hitbox: HitboxArea = get_node_or_null(claw_right_hitbox_path)
@@ -75,6 +77,7 @@ func _ready() -> void:
 
 	_apply_combat_stats()
 	_emit_catnip_state()
+	_play_visual_animation(&"idle")
 
 
 func _physics_process(delta: float) -> void:
@@ -254,6 +257,7 @@ func _play_combat_animation(animation_name: StringName) -> void:
 	if _catnip_active and catnip_rage_data != null and animation_name in [&"claw_1", &"claw_2", &"claw_3", &"pounce"]:
 		speed_scale = catnip_rage_data.attack_speed_multiplier
 
+	_play_visual_animation(_visual_animation_for_combat(animation_name), speed_scale)
 	animation_player.play(animation_name, -1.0, speed_scale)
 
 
@@ -328,6 +332,7 @@ func _try_cast_hairball() -> void:
 	parent.add_child(projectile)
 	projectile.global_transform = hairball_spawn.global_transform
 	projectile.configure(hairball_data, self, _current_facing_direction())
+	_play_visual_animation(&"hairball_spit")
 
 	_hairball_cooldown_remaining = hairball_data.cooldown
 	hairball_cooldown_changed.emit(_hairball_cooldown_remaining, hairball_data.cooldown)
@@ -354,6 +359,7 @@ func _try_activate_catnip_rage() -> void:
 	_apply_combat_stats()
 	_spawn_catnip_effect(catnip_activate_effect_scene, false)
 	_catnip_active_effect = _spawn_catnip_effect(catnip_active_effect_scene, true)
+	_play_visual_animation(&"rage_idle")
 	_emit_catnip_state()
 
 
@@ -384,6 +390,7 @@ func _end_catnip_rage() -> void:
 
 	_apply_combat_stats()
 	_spawn_catnip_effect(catnip_expire_effect_scene, false)
+	_play_visual_animation(&"idle")
 	_emit_catnip_state()
 
 
@@ -420,3 +427,17 @@ func _emit_catnip_state() -> void:
 	var cooldown := catnip_rage_data.cooldown if catnip_rage_data != null else 0.0
 	var unlocked := catnip_rage_data != null and catnip_rage_data.unlocked
 	catnip_rage_changed.emit(_catnip_active, _catnip_remaining, duration, _catnip_cooldown_remaining, cooldown, unlocked)
+
+
+func _visual_animation_for_combat(animation_name: StringName) -> StringName:
+	if _catnip_active and animation_name in [&"claw_1", &"claw_2", &"claw_3"]:
+		return &"rage_attack"
+
+	return animation_name
+
+
+func _play_visual_animation(animation_name: StringName, speed_scale: float = 1.0) -> void:
+	if visual_animation_player == null or animation_name == &"" or not visual_animation_player.has_animation(animation_name):
+		return
+
+	visual_animation_player.play(animation_name, -1.0, speed_scale)
