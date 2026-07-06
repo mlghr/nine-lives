@@ -134,6 +134,20 @@ max_value = 2.5
 value = 2.5
 show_percentage = false
 
+[node name="CatnipRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="CatnipLabel" type="Label" parent="MarginContainer/VBoxContainer/CatnipRow"]
+layout_mode = 2
+text = "Catnip"
+
+[node name="CatnipMeter" type="ProgressBar" parent="MarginContainer/VBoxContainer/CatnipRow"]
+custom_minimum_size = Vector2(160, 16)
+layout_mode = 2
+max_value = 8.0
+value = 8.0
+show_percentage = false
+
 [node name="FeedbackLayer" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
