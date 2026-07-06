@@ -35,6 +35,27 @@ var _dodge_direction: Vector3 = Vector3.ZERO
 var _hairball_cooldown_remaining: float = 0.0
 
 
+func get_debug_state() -> Dictionary:
+	var cooldown := 0.0
+	if hairball_data != null:
+		cooldown = hairball_data.cooldown
+
+	var invulnerable := false
+	if health_component != null:
+		invulnerable = health_component.invulnerable
+
+	return {
+		"combat_state": _combat_state,
+		"combo_step": _combo_step,
+		"coyote_time_remaining": _coyote_timer,
+		"hairball_remaining": _hairball_cooldown_remaining,
+		"hairball_cooldown": cooldown,
+		"invulnerable": invulnerable,
+		"parry_active": parry_active,
+		"stats_resource": stats.resource_path if stats != null else "",
+	}
+
+
 func _ready() -> void:
 	if stats == null:
 		push_error("Player requires a PlayerStats resource.")
