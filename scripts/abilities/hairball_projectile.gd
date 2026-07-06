@@ -2,6 +2,7 @@ class_name HairballProjectile
 extends Area3D
 
 @export var data: HairballData
+@export var impact_effect_scene: PackedScene
 
 var source: Node
 var direction: Vector3 = Vector3.FORWARD
@@ -46,14 +47,15 @@ func _on_area_entered(area: Area3D) -> void:
 		return
 
 	if area.has_method("receive_hit"):
-		area.receive_hit({
+		if area.receive_hit({
 			"source": source,
 			"damage": data.damage,
 			"stagger": data.stagger,
 			"knockback_force": data.knockback_force,
 			"hit_type": &"hairball",
 			"direction": direction,
-		})
+		}):
+			_spawn_impact_effect()
 		queue_free()
 
 
@@ -63,3 +65,19 @@ func _apply_data_to_shape() -> void:
 		return
 
 	(shape_node.shape as SphereShape3D).radius = data.radius
+
+
+func _spawn_impact_effect() -> void:
+	if impact_effect_scene == null:
+		return
+
+	var effect := impact_effect_scene.instantiate() as Node3D
+	if effect == null:
+		return
+
+	var parent := get_tree().current_scene
+	if parent == null:
+		parent = get_parent()
+
+	parent.add_child(effect)
+	effect.global_position = global_position

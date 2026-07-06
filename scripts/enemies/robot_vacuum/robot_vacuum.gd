@@ -21,6 +21,8 @@ enum RobotVacuumState {
 @export_node_path("Area3D") var encounter_bounds_path: NodePath = NodePath("")
 @export_node_path("Area3D") var stair_fall_detector_path: NodePath = ^"WeaknessRoot/StairFallDetector"
 @export_node_path("AnimationPlayer") var animation_player_path: NodePath = ^"AnimationPlayer"
+@export var flip_effect_scene: PackedScene
+@export var shutdown_effect_scene: PackedScene
 
 @onready var model_root: Node3D = get_node_or_null(model_root_path)
 @onready var navigation_agent: NavigationAgent3D = get_node_or_null(navigation_agent_path)
@@ -203,7 +205,7 @@ func _start_bump(direction: Vector3) -> void:
 	velocity.x = direction.x * stats.charge_speed
 	velocity.z = direction.z * stats.charge_speed
 	state = RobotVacuumState.BUMP
-	_state_timer = 0.28
+	_state_timer = 0.34
 	if animation_player != null and animation_player.has_animation(&"bump_attack"):
 		animation_player.play(&"bump_attack")
 
@@ -220,6 +222,7 @@ func _enter_flipped() -> void:
 	_state_timer = stats.helpless_duration
 	if animation_player != null and animation_player.has_animation(&"flipped"):
 		animation_player.play(&"flipped")
+	_spawn_effect(flip_effect_scene)
 
 
 func _enter_defeated(reason: StringName = &"defeated") -> void:
@@ -233,6 +236,7 @@ func _enter_defeated(reason: StringName = &"defeated") -> void:
 
 	if not _disabled_emitted:
 		_disabled_emitted = true
+		_spawn_effect(shutdown_effect_scene)
 		disabled.emit(reason)
 
 
@@ -328,3 +332,19 @@ func _on_encounter_bounds_body_exited(body: Node3D) -> void:
 
 func _is_player_candidate(body: Node) -> bool:
 	return body.name == "Player" or body.is_in_group("player")
+
+
+func _spawn_effect(effect_scene: PackedScene) -> void:
+	if effect_scene == null:
+		return
+
+	var effect := effect_scene.instantiate() as Node3D
+	if effect == null:
+		return
+
+	var parent := get_tree().current_scene
+	if parent == null:
+		parent = self
+
+	parent.add_child(effect)
+	effect.global_position = global_position

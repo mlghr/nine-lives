@@ -24,6 +24,7 @@ enum VacuumState {
 @export_node_path("Node3D") var power_cord_path: NodePath = ^"WeaknessRoot/PowerCord"
 @export_node_path("Area3D") var water_short_circuit_area_path: NodePath = ^"WeaknessRoot/WaterShortCircuitArea"
 @export_node_path("AnimationPlayer") var animation_player_path: NodePath = ^"AnimationPlayer"
+@export var shutdown_effect_scene: PackedScene
 
 @onready var model_root: Node3D = get_node_or_null(model_root_path)
 @onready var navigation_agent: NavigationAgent3D = get_node_or_null(navigation_agent_path)
@@ -276,6 +277,7 @@ func _enter_shutdown(reason: StringName = &"defeated") -> void:
 
 	if not _disabled_emitted:
 		_disabled_emitted = true
+		_spawn_effect(shutdown_effect_scene)
 		disabled.emit(reason)
 
 
@@ -359,3 +361,19 @@ func _on_encounter_bounds_body_exited(body: Node3D) -> void:
 
 func _is_player_candidate(body: Node) -> bool:
 	return body.name == "Player" or body.is_in_group("player")
+
+
+func _spawn_effect(effect_scene: PackedScene) -> void:
+	if effect_scene == null:
+		return
+
+	var effect := effect_scene.instantiate() as Node3D
+	if effect == null:
+		return
+
+	var parent := get_tree().current_scene
+	if parent == null:
+		parent = self
+
+	parent.add_child(effect)
+	effect.global_position = global_position

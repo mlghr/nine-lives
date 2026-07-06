@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3]
+[gd_scene load_steps=34 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="2_camera"]
@@ -9,6 +9,11 @@
 [ext_resource type="Resource" path="res://resources/player/player_health.tres" id="7_health_stats"]
 [ext_resource type="PackedScene" path="res://scenes/abilities/hairball_projectile.tscn" id="8_hairball_projectile"]
 [ext_resource type="Resource" path="res://resources/abilities/hairball_data.tres" id="9_hairball_data"]
+[ext_resource type="PackedScene" path="res://scenes/effects/claw_hit_effect.tscn" id="10_claw_effect"]
+[ext_resource type="PackedScene" path="res://scenes/effects/pounce_impact_effect.tscn" id="11_pounce_effect"]
+[ext_resource type="PackedScene" path="res://scenes/effects/hiss_parry_effect.tscn" id="12_hiss_effect"]
+[ext_resource type="PackedScene" path="res://scenes/effects/player_damage_effect.tscn" id="13_damage_effect"]
+[ext_resource type="PackedScene" path="res://scenes/effects/stagger_effect.tscn" id="14_stagger_effect"]
 
 [sub_resource type="CapsuleShape3D" id="1_body_collision"]
 radius = 0.13
@@ -355,6 +360,7 @@ fov = 70.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12, 0.17, -0.32)
 monitoring = false
 script = ExtResource("4_hitbox")
+hit_effect_scene = ExtResource("10_claw_effect")
 source_path = NodePath("../..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/ClawHitbox_L"]
@@ -364,6 +370,7 @@ shape = SubResource("9_claw_shape")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0.17, -0.32)
 monitoring = false
 script = ExtResource("4_hitbox")
+hit_effect_scene = ExtResource("10_claw_effect")
 source_path = NodePath("../..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/ClawHitbox_R"]
@@ -373,6 +380,7 @@ shape = SubResource("9_claw_shape")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, -0.36)
 monitoring = false
 script = ExtResource("4_hitbox")
+hit_effect_scene = ExtResource("11_pounce_effect")
 source_path = NodePath("../..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/PounceHitbox"]
@@ -382,6 +390,7 @@ shape = SubResource("10_pounce_shape")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, -0.42)
 monitoring = false
 script = ExtResource("4_hitbox")
+hit_effect_scene = ExtResource("12_hiss_effect")
 source_path = NodePath("../..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CombatRoot/HissParryArea"]
@@ -399,6 +408,8 @@ shape = SubResource("12_hurtbox_shape")
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("6_health")
 stats = ExtResource("7_health_stats")
+damage_effect_scene = ExtResource("13_damage_effect")
+stagger_effect_scene = ExtResource("14_stagger_effect")
 
 [node name="HairballSpawn" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22, -0.36)
