@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+signal hairball_cooldown_changed(remaining: float, cooldown: float)
+
 @export var stats: PlayerStats
 @export_node_path("Node3D") var model_root_path: NodePath = ^"ModelRoot"
 @export_node_path("Node3D") var camera_rig_path: NodePath = ^"CameraRig"
@@ -9,6 +11,9 @@ extends CharacterBody3D
 @export_node_path("HitboxArea") var claw_right_hitbox_path: NodePath = ^"CombatRoot/ClawHitbox_R"
 @export_node_path("HitboxArea") var pounce_hitbox_path: NodePath = ^"CombatRoot/PounceHitbox"
 @export_node_path("HitboxArea") var hiss_parry_area_path: NodePath = ^"CombatRoot/HissParryArea"
+@export_node_path("Marker3D") var hairball_spawn_path: NodePath = ^"HairballSpawn"
+@export var hairball_projectile_scene: PackedScene
+@export var hairball_data: HairballData
 
 @onready var model_root: Node3D = get_node_or_null(model_root_path)
 @onready var camera_rig: Node3D = get_node_or_null(camera_rig_path)
@@ -18,6 +23,7 @@ extends CharacterBody3D
 @onready var claw_right_hitbox: HitboxArea = get_node_or_null(claw_right_hitbox_path)
 @onready var pounce_hitbox: HitboxArea = get_node_or_null(pounce_hitbox_path)
 @onready var hiss_parry_area: HitboxArea = get_node_or_null(hiss_parry_area_path)
+@onready var hairball_spawn: Marker3D = get_node_or_null(hairball_spawn_path)
 
 @export var parry_active: bool = false
 
@@ -26,6 +32,7 @@ var _combo_step: int = 0
 var _combo_reset_timer: float = 0.0
 var _combat_state: StringName = &"idle"
 var _dodge_direction: Vector3 = Vector3.ZERO
+var _hairball_cooldown_remaining: float = 0.0
 
 
 func _ready() -> void:
@@ -43,6 +50,7 @@ func _physics_process(delta: float) -> void:
 	var movement_input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var move_direction := _camera_relative_direction(movement_input)
 	_update_combo_reset(delta)
+	_update_hairball_cooldown(delta)
 	_handle_combat_input(move_direction)
 
 	var target_velocity := move_direction * _target_speed(movement_input.length())
@@ -133,6 +141,8 @@ func _handle_combat_input(move_direction: Vector3) -> void:
 		_start_pounce(move_direction)
 	elif Input.is_action_just_pressed("attack_claw"):
 		_start_claw()
+	elif Input.is_action_just_pressed("ability_hairball"):
+		_try_cast_hairball()
 
 
 func _start_claw() -> void:
@@ -245,3 +255,36 @@ func _disable_combat_windows() -> void:
 	for hitbox in [claw_left_hitbox, claw_right_hitbox, pounce_hitbox, hiss_parry_area]:
 		if hitbox != null:
 			hitbox.enabled = false
+
+
+func _try_cast_hairball() -> void:
+	if hairball_projectile_scene == null or hairball_data == null or hairball_spawn == null:
+		push_warning("Hairball cast requested without projectile scene, data, or spawn marker.")
+		return
+
+	if _hairball_cooldown_remaining > 0.0:
+		return
+
+	var projectile := hairball_projectile_scene.instantiate() as HairballProjectile
+	if projectile == null:
+		push_warning("Hairball projectile scene does not instantiate a HairballProjectile.")
+		return
+
+	var parent := get_tree().current_scene
+	if parent == null:
+		parent = get_parent()
+
+	parent.add_child(projectile)
+	projectile.global_transform = hairball_spawn.global_transform
+	projectile.configure(hairball_data, self, _current_facing_direction())
+
+	_hairball_cooldown_remaining = hairball_data.cooldown
+	hairball_cooldown_changed.emit(_hairball_cooldown_remaining, hairball_data.cooldown)
+
+
+func _update_hairball_cooldown(delta: float) -> void:
+	if hairball_data == null or _hairball_cooldown_remaining <= 0.0:
+		return
+
+	_hairball_cooldown_remaining = maxf(_hairball_cooldown_remaining - delta, 0.0)
+	hairball_cooldown_changed.emit(_hairball_cooldown_remaining, hairball_data.cooldown)
