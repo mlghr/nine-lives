@@ -11,6 +11,8 @@ You run in Codex cloud, one **work item** per task. The work items are numbered 
 3. Produce one branch / one PR per item. Branch name: `feature/m1-<nn>-<short-name>` (e.g. `feature/m1-02-player-controller`).
 4. End every PR description with three sections: **What was added**, **Placeholders** (art, sound, tuning), and **Decisions needing sign-off** (see rule 3 below).
 
+Codex environment setup should run `bash scripts/setup-codex-godot.sh` before the task starts. That script installs Godot 4.6.2 on Linux Codex containers and exposes it as `godot` for validation.
+
 ## Non-negotiable rules
 
 1. **Scene files are the source of truth.** You have no Godot editor, but everything must exist as editor-editable files: scenes as `.tscn`, resources as `.tres`, written directly in Godot's text format. Never construct an object graph at runtime — no `Node3D.new()` + `add_child()` chains, no meshes or collision shapes built in scripts. Scripts *drive and configure* nodes that exist in scene files; dynamic spawning (projectiles, enemies) instances a `PackedScene` that itself is a real `.tscn`. This applies to the player, every enemy, every UI screen, every ability effect, every level.
