@@ -15,6 +15,10 @@ run/main_scene="res://scenes/levels/hallway_hub.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+GameManager="*res://scenes/game/game_manager.tscn"
+
 [input]
 
 move_forward={

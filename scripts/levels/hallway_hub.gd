@@ -26,6 +26,10 @@ func _ready() -> void:
 	if debug_overlay != null:
 		debug_overlay.configure(player, debug_overlay_enabled, debug_overlay_starts_visible)
 
+	var game_manager := get_node_or_null("/root/GameManager")
+	if game_manager != null and game_manager.has_method("bind_hub"):
+		game_manager.call("bind_hub", self)
+
 
 func _on_lives_changed(current_lives: int, max_lives: int) -> void:
 	if hud != null:
