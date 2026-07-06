@@ -23,6 +23,9 @@ func _ready() -> void:
 	if player.has_signal("hairball_cooldown_changed"):
 		player.hairball_cooldown_changed.connect(_on_hairball_cooldown_changed)
 
+	if player.has_signal("catnip_rage_changed"):
+		player.catnip_rage_changed.connect(_on_catnip_rage_changed)
+
 	if debug_overlay != null:
 		debug_overlay.configure(player, debug_overlay_enabled, debug_overlay_starts_visible)
 
@@ -39,3 +42,8 @@ func _on_lives_changed(current_lives: int, max_lives: int) -> void:
 func _on_hairball_cooldown_changed(remaining: float, cooldown: float) -> void:
 	if hud != null:
 		hud.call("set_hairball_cooldown", remaining, cooldown)
+
+
+func _on_catnip_rage_changed(active: bool, remaining: float, duration: float, cooldown_remaining: float, cooldown: float, unlocked: bool) -> void:
+	if hud != null:
+		hud.call("set_catnip_rage", active, remaining, duration, cooldown_remaining, cooldown, unlocked)

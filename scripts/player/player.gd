@@ -1,6 +1,7 @@
 extends CharacterBody3D
 
 signal hairball_cooldown_changed(remaining: float, cooldown: float)
+signal catnip_rage_changed(active: bool, remaining: float, duration: float, cooldown_remaining: float, cooldown: float, unlocked: bool)
 
 @export var stats: PlayerStats
 @export_node_path("Node3D") var model_root_path: NodePath = ^"ModelRoot"
@@ -14,6 +15,10 @@ signal hairball_cooldown_changed(remaining: float, cooldown: float)
 @export_node_path("Marker3D") var hairball_spawn_path: NodePath = ^"HairballSpawn"
 @export var hairball_projectile_scene: PackedScene
 @export var hairball_data: HairballData
+@export var catnip_rage_data: CatnipRageData
+@export var catnip_activate_effect_scene: PackedScene
+@export var catnip_active_effect_scene: PackedScene
+@export var catnip_expire_effect_scene: PackedScene
 
 @onready var model_root: Node3D = get_node_or_null(model_root_path)
 @onready var camera_rig: Node3D = get_node_or_null(camera_rig_path)
@@ -33,6 +38,10 @@ var _combo_reset_timer: float = 0.0
 var _combat_state: StringName = &"idle"
 var _dodge_direction: Vector3 = Vector3.ZERO
 var _hairball_cooldown_remaining: float = 0.0
+var _catnip_active: bool = false
+var _catnip_remaining: float = 0.0
+var _catnip_cooldown_remaining: float = 0.0
+var _catnip_active_effect: Node3D
 
 
 func get_debug_state() -> Dictionary:
@@ -47,10 +56,13 @@ func get_debug_state() -> Dictionary:
 	return {
 		"combat_state": _combat_state,
 		"combo_step": _combo_step,
-		"coyote_time_remaining": _coyote_timer,
-		"hairball_remaining": _hairball_cooldown_remaining,
-		"hairball_cooldown": cooldown,
-		"invulnerable": invulnerable,
+			"coyote_time_remaining": _coyote_timer,
+			"hairball_remaining": _hairball_cooldown_remaining,
+			"hairball_cooldown": cooldown,
+			"catnip_active": _catnip_active,
+			"catnip_remaining": _catnip_remaining,
+			"catnip_cooldown_remaining": _catnip_cooldown_remaining,
+			"invulnerable": invulnerable,
 		"parry_active": parry_active,
 		"stats_resource": stats.resource_path if stats != null else "",
 	}
@@ -62,6 +74,7 @@ func _ready() -> void:
 		return
 
 	_apply_combat_stats()
+	_emit_catnip_state()
 
 
 func _physics_process(delta: float) -> void:
@@ -72,6 +85,7 @@ func _physics_process(delta: float) -> void:
 	var move_direction := _camera_relative_direction(movement_input)
 	_update_combo_reset(delta)
 	_update_hairball_cooldown(delta)
+	_update_catnip_rage(delta)
 	_handle_combat_input(move_direction)
 
 	var target_velocity := move_direction * _target_speed(movement_input.length())
@@ -146,8 +160,18 @@ func _update_facing(delta: float) -> void:
 	model_root.rotation.y = lerp_angle(model_root.rotation.y, desired_yaw, minf(stats.turn_speed * delta, 1.0))
 
 
-func on_hurtbox_hit(_hit_data: Dictionary) -> bool:
-	return parry_active
+func on_hurtbox_hit(hit_data: Dictionary) -> bool:
+	if parry_active:
+		return true
+
+	if _catnip_active and catnip_rage_data != null and catnip_rage_data.no_flinch_from_small_hits and health_component != null and health_component.stats != null:
+		var stagger := maxf(float(hit_data.get("stagger", 0.0)), 0.0)
+		if stagger < health_component.stats.small_hit_stagger_threshold:
+			var adjusted_hit := hit_data.duplicate()
+			adjusted_hit["stagger"] = 0.0
+			return health_component.apply_hit(adjusted_hit)
+
+	return false
 
 
 func _handle_combat_input(move_direction: Vector3) -> void:
@@ -164,6 +188,8 @@ func _handle_combat_input(move_direction: Vector3) -> void:
 		_start_claw()
 	elif Input.is_action_just_pressed("ability_hairball"):
 		_try_cast_hairball()
+	elif Input.is_action_just_pressed("ability_catnip_rage"):
+		_try_activate_catnip_rage()
 
 
 func _start_claw() -> void:
@@ -224,7 +250,11 @@ func _play_combat_animation(animation_name: StringName) -> void:
 		return
 
 	_disable_combat_windows()
-	animation_player.play(animation_name)
+	var speed_scale := 1.0
+	if _catnip_active and catnip_rage_data != null and animation_name in [&"claw_1", &"claw_2", &"claw_3", &"pounce"]:
+		speed_scale = catnip_rage_data.attack_speed_multiplier
+
+	animation_player.play(animation_name, -1.0, speed_scale)
 
 
 func _update_combo_reset(delta: float) -> void:
@@ -245,19 +275,19 @@ func _current_facing_direction() -> Vector3:
 
 func _apply_combat_stats() -> void:
 	if claw_left_hitbox != null:
-		claw_left_hitbox.damage = stats.claw_1_damage
+		claw_left_hitbox.damage = stats.claw_1_damage + _catnip_damage_bonus()
 		claw_left_hitbox.stagger = stats.claw_stagger
 		claw_left_hitbox.knockback_force = stats.claw_knockback_force
 		claw_left_hitbox.hit_type = &"claw"
 
 	if claw_right_hitbox != null:
-		claw_right_hitbox.damage = stats.claw_2_damage
+		claw_right_hitbox.damage = stats.claw_2_damage + _catnip_damage_bonus()
 		claw_right_hitbox.stagger = stats.claw_stagger
 		claw_right_hitbox.knockback_force = stats.claw_knockback_force
 		claw_right_hitbox.hit_type = &"claw"
 
 	if pounce_hitbox != null:
-		pounce_hitbox.damage = stats.pounce_damage
+		pounce_hitbox.damage = stats.pounce_damage + _catnip_damage_bonus()
 		pounce_hitbox.stagger = stats.pounce_stagger
 		pounce_hitbox.knockback_force = stats.pounce_knockback_force
 		pounce_hitbox.knockdown_chance = stats.pounce_knockdown_chance
@@ -309,3 +339,84 @@ func _update_hairball_cooldown(delta: float) -> void:
 
 	_hairball_cooldown_remaining = maxf(_hairball_cooldown_remaining - delta, 0.0)
 	hairball_cooldown_changed.emit(_hairball_cooldown_remaining, hairball_data.cooldown)
+
+
+func _try_activate_catnip_rage() -> void:
+	if catnip_rage_data == null or not catnip_rage_data.unlocked:
+		return
+
+	if _catnip_active or _catnip_cooldown_remaining > 0.0:
+		return
+
+	_catnip_active = true
+	_catnip_remaining = catnip_rage_data.duration
+	_catnip_cooldown_remaining = 0.0
+	_apply_combat_stats()
+	_spawn_catnip_effect(catnip_activate_effect_scene, false)
+	_catnip_active_effect = _spawn_catnip_effect(catnip_active_effect_scene, true)
+	_emit_catnip_state()
+
+
+func _update_catnip_rage(delta: float) -> void:
+	if catnip_rage_data == null:
+		return
+
+	if _catnip_active:
+		_catnip_remaining = maxf(_catnip_remaining - delta, 0.0)
+		if _catnip_remaining == 0.0:
+			_end_catnip_rage()
+		else:
+			_emit_catnip_state()
+		return
+
+	if _catnip_cooldown_remaining > 0.0:
+		_catnip_cooldown_remaining = maxf(_catnip_cooldown_remaining - delta, 0.0)
+		_emit_catnip_state()
+
+
+func _end_catnip_rage() -> void:
+	_catnip_active = false
+	_catnip_remaining = 0.0
+	_catnip_cooldown_remaining = catnip_rage_data.cooldown
+	if _catnip_active_effect != null:
+		_catnip_active_effect.queue_free()
+		_catnip_active_effect = null
+
+	_apply_combat_stats()
+	_spawn_catnip_effect(catnip_expire_effect_scene, false)
+	_emit_catnip_state()
+
+
+func _catnip_damage_bonus() -> int:
+	if _catnip_active and catnip_rage_data != null:
+		return catnip_rage_data.damage_bonus
+
+	return 0
+
+
+func _spawn_catnip_effect(effect_scene: PackedScene, attach_to_player: bool) -> Node3D:
+	if effect_scene == null:
+		return null
+
+	var effect := effect_scene.instantiate() as Node3D
+	if effect == null:
+		return null
+
+	if attach_to_player:
+		add_child(effect)
+		effect.position = Vector3.ZERO
+	else:
+		var parent := get_tree().current_scene
+		if parent == null:
+			parent = get_parent()
+		parent.add_child(effect)
+		effect.global_position = global_position
+
+	return effect
+
+
+func _emit_catnip_state() -> void:
+	var duration := catnip_rage_data.duration if catnip_rage_data != null else 0.0
+	var cooldown := catnip_rage_data.cooldown if catnip_rage_data != null else 0.0
+	var unlocked := catnip_rage_data != null and catnip_rage_data.unlocked
+	catnip_rage_changed.emit(_catnip_active, _catnip_remaining, duration, _catnip_cooldown_remaining, cooldown, unlocked)

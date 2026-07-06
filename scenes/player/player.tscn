@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/camera_rig.gd" id="2_camera"]
@@ -14,6 +14,10 @@
 [ext_resource type="PackedScene" path="res://scenes/effects/hiss_parry_effect.tscn" id="12_hiss_effect"]
 [ext_resource type="PackedScene" path="res://scenes/effects/player_damage_effect.tscn" id="13_damage_effect"]
 [ext_resource type="PackedScene" path="res://scenes/effects/stagger_effect.tscn" id="14_stagger_effect"]
+[ext_resource type="Resource" path="res://resources/abilities/catnip_rage_data.tres" id="15_catnip_rage_data"]
+[ext_resource type="PackedScene" path="res://scenes/effects/catnip_rage_activate_effect.tscn" id="16_catnip_activate_effect"]
+[ext_resource type="PackedScene" path="res://scenes/effects/catnip_rage_active_effect.tscn" id="17_catnip_active_effect"]
+[ext_resource type="PackedScene" path="res://scenes/effects/catnip_rage_expire_effect.tscn" id="18_catnip_expire_effect"]
 
 [sub_resource type="CapsuleShape3D" id="1_body_collision"]
 radius = 0.13
@@ -290,6 +294,10 @@ hiss_parry_area_path = NodePath("CombatRoot/HissParryArea")
 hairball_spawn_path = NodePath("HairballSpawn")
 hairball_projectile_scene = ExtResource("8_hairball_projectile")
 hairball_data = ExtResource("9_hairball_data")
+catnip_rage_data = ExtResource("15_catnip_rage_data")
+catnip_activate_effect_scene = ExtResource("16_catnip_activate_effect")
+catnip_active_effect_scene = ExtResource("17_catnip_active_effect")
+catnip_expire_effect_scene = ExtResource("18_catnip_expire_effect")
 
 [node name="BodyCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.17, 0)
